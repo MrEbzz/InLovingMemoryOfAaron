@@ -59,26 +59,17 @@ h1 {
   opacity: 0;
 }
 
-/* Hidden image container */
-.hidden-image-container {
+/* Canvas goes behind the text */
+#revealCanvas {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 100%;
   max-width: 800px;
-  pointer-events: none;
-  z-index: 1;
-  overflow: hidden;
-}
-
-/* Actual image with clip-path */
-.hidden-image {
   width: 100%;
   height: auto;
-  display: block;
-  clip-path: circle(0px at 50% 50%);
-  transition: clip-path 0.05s;
+  z-index: 1;
+  pointer-events: none;
 }
 </style>
 </head>
@@ -88,60 +79,110 @@ h1 {
   <span style="white-space: nowrap;">Aaron Anthony Ebanks</span>
 </h1>
 
-<div class="hidden-image-container">
-  <img src="Image1.png" class="hidden-image" />
-</div>
-
+<canvas id="revealCanvas"></canvas>
 <div class="glow"></div>
 
 <script>
 const glow = document.querySelector('.glow');
-const hiddenImg = document.querySelector('.hidden-image');
-const radius = 90; // matches half the glow size
+const canvas = document.getElementById('revealCanvas');
+const ctx = canvas.getContext('2d');
+const img = new Image();
+img.src = 'Image1.png';
+const radius = 90;
 
-function moveGlow(x, y) {
-  // Position the glow exactly under the finger or cursor
-  glow.style.left = `${x}px`;
-  glow.style.top = `${y}px`;
+let w, h, scale;
+let fadeMask; // will store alpha mask
 
-  // Convert screen coords to image-local coords for clip-path
-  const rect = hiddenImg.getBoundingClientRect();
-  const localX = x - rect.left;
-  const localY = y - rect.top;
+// Resizes canvas to fit image nicely
+function resizeCanvas() {
+  const maxWidth = 800;
+  scale = Math.min(window.innerWidth, maxWidth) / img.width;
+  w = img.width * scale;
+  h = img.height * scale;
+  canvas.width = w;
+  canvas.height = h;
+}
+img.onload = () => {
+  resizeCanvas();
+  createFadeMask();
+  window.addEventListener('resize', () => {
+    resizeCanvas();
+    createFadeMask();
+    drawMask(-9999, -9999); // reset hidden
+  });
+  drawMask(-9999, -9999); // initially hidden
+};
 
-  // Reveal the image at that exact spot
-  hiddenImg.style.clipPath = `circle(${radius}px at ${localX}px ${localY}px)`;
+// Pre-render a soft circular fade as an offscreen canvas
+function createFadeMask() {
+  fadeMask = document.createElement('canvas');
+  fadeMask.width = radius * 2;
+  fadeMask.height = radius * 2;
+  const mctx = fadeMask.getContext('2d');
+  const grad = mctx.createRadialGradient(radius, radius, radius * 0.6, radius, radius, radius);
+  grad.addColorStop(0, 'rgba(0,0,0,1)');
+  grad.addColorStop(1, 'rgba(0,0,0,0)');
+  mctx.fillStyle = grad;
+  mctx.beginPath();
+  mctx.arc(radius, radius, radius, 0, Math.PI * 2);
+  mctx.fill();
 }
 
-// Touch support
+// Draw the mask at given local coordinates
+function drawMask(x, y) {
+  ctx.clearRect(0, 0, w, h);
+  // Start by filling black overlay
+  ctx.fillStyle = 'black';
+  ctx.fillRect(0, 0, w, h);
+  if (x > 0 && y > 0) {
+    // Punch soft hole using fade mask
+    ctx.save();
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.drawImage(fadeMask, x - radius, y - radius);
+    ctx.restore();
+    // Redraw image underneath the cleared part
+    ctx.globalCompositeOperation = 'destination-over';
+    ctx.drawImage(img, 0, 0, w, h);
+    ctx.globalCompositeOperation = 'source-over';
+  }
+}
+
+function updatePosition(pageX, pageY) {
+  glow.style.left = `${pageX}px`;
+  glow.style.top = `${pageY}px`;
+  const rect = canvas.getBoundingClientRect();
+  const localX = pageX - rect.left;
+  const localY = pageY - rect.top;
+  drawMask(localX, localY);
+}
+
+// Touch events
 document.addEventListener('touchstart', e => {
   if (e.touches.length > 0) {
     glow.style.opacity = '1';
-    moveGlow(e.touches[0].clientX, e.touches[0].clientY);
+    updatePosition(e.touches[0].clientX, e.touches[0].clientY);
   }
 }, { passive: true });
 
 document.addEventListener('touchmove', e => {
   if (e.touches.length > 0) {
-    moveGlow(e.touches[0].clientX, e.touches[0].clientY);
+    updatePosition(e.touches[0].clientX, e.touches[0].clientY);
   }
 }, { passive: true });
 
 document.addEventListener('touchend', e => {
-  if (e.touches.length === 0) {
-    glow.style.opacity = '0';
-    hiddenImg.style.clipPath = `circle(0px at 50% 50%)`;
-  }
+  glow.style.opacity = '0';
+  drawMask(-9999, -9999);
 }, { passive: true });
 
-// Mouse support (for desktop testing)
+// Mouse support for desktop testing
 document.addEventListener('mousemove', e => {
   glow.style.opacity = '1';
-  moveGlow(e.clientX, e.clientY);
+  updatePosition(e.clientX, e.clientY);
 });
 document.addEventListener('mouseleave', () => {
   glow.style.opacity = '0';
-  hiddenImg.style.clipPath = `circle(0px at 50% 50%)`;
+  drawMask(-9999, -9999);
 });
 </script>
 </body>
