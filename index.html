@@ -97,12 +97,12 @@ img.src = 'Image1.png';
 
 let w, h, scale;
 let fadeMask, imageMask;
-let radius = 150; // increased radius
-let glowScale = 1.5; // larger glow
+let radius = 220; // increased reveal radius
+let glowScale = 1.8;
 
 // Recalculate sizes dynamically
 function calcRadius() {
-  radius = Math.max(120, Math.min(200, window.innerWidth * 0.15)); // bigger reveal radius
+  radius = Math.max(180, Math.min(280, window.innerWidth * 0.2)); // larger reveal circle
   glow.style.width = radius * 2 * glowScale + 'px';
   glow.style.height = radius * 2 * glowScale + 'px';
 }
