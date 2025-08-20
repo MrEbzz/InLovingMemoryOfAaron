@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-<title>In Loving Memory Of Aaron Anthony Ebanks</title>
+<title>In Memory Of Aaron Anthony Ebanks</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
 <style>
 html, body {
@@ -48,15 +48,12 @@ h1 {
 /* Glow element */
 .glow {
   position: fixed;
-  top: 0;
-  left: 0;
   width: 180px;
   height: 180px;
-  margin: -90px 0 0 -90px;
   background: radial-gradient(circle, rgba(255,105,180,0.8) 0%, rgba(255,105,180,0) 70%);
   border-radius: 50%;
   pointer-events: none;
-  transform: translate(-9999px, -9999px);
+  transform: translate(-50%, -50%); /* Center at finger */
   z-index: 3;
   transition: opacity 0.15s ease;
   opacity: 0;
@@ -80,14 +77,14 @@ h1 {
   width: 100%;
   height: auto;
   display: block;
-  clip-path: circle(0px at 0 0); /* start hidden */
+  clip-path: circle(0px at 50% 50%); /* start hidden */
   transition: clip-path 0.05s;
 }
 </style>
 </head>
 <body>
 <h1>
-  In Loving Memory Of<br>
+  In Memory Of<br>
   <span style="white-space: nowrap;">Aaron Anthony Ebanks</span>
 </h1>
 
@@ -100,13 +97,15 @@ h1 {
 <script>
 const glow = document.querySelector('.glow');
 const hiddenImg = document.querySelector('.hidden-image');
+const radius = 90; // matches half the glow size
 
 function moveGlow(x, y) {
-  glow.style.transform = `translate(${x}px, ${y}px)`;
-  const radius = 90; // glow radius
+  glow.style.left = `${x}px`;
+  glow.style.top = `${y}px`;
   hiddenImg.style.clipPath = `circle(${radius}px at ${x}px ${y}px)`;
 }
 
+// Touch support
 document.addEventListener('touchstart', e => {
   if (e.touches.length > 0) {
     glow.style.opacity = '1';
@@ -123,9 +122,19 @@ document.addEventListener('touchmove', e => {
 document.addEventListener('touchend', e => {
   if (e.touches.length === 0) { 
     glow.style.opacity = '0';
-    hiddenImg.style.clipPath = `circle(0px at 0 0)`; // hide again
+    hiddenImg.style.clipPath = `circle(0px at 50% 50%)`;
   }
 }, { passive: true });
+
+// Mouse support (for desktop testing)
+document.addEventListener('mousemove', e => {
+  glow.style.opacity = '1';
+  moveGlow(e.clientX, e.clientY);
+});
+document.addEventListener('mouseleave', () => {
+  glow.style.opacity = '0';
+  hiddenImg.style.clipPath = `circle(0px at 50% 50%)`;
+});
 </script>
 </body>
 </html>
