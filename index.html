@@ -105,11 +105,6 @@ opacity: 0;
 pointer-events: none;
 }
 
-@keyframes pulse {
-0%, 100% { opacity: 0.6; }
-50% { opacity: 1; }
-}
-
 .loading::after {
 content: ‘’;
 display: inline-block;
@@ -146,7 +141,11 @@ transition: opacity 1s ease;
 opacity: 1;
 }
 
-/* Fallback for when images fail to load */
+@keyframes pulse {
+0%, 100% { opacity: 0.6; }
+50% { opacity: 1; }
+}
+
 .error-message {
 position: fixed;
 top: 70%;
@@ -167,129 +166,160 @@ line-height: 1.5;
 opacity: 1;
 }
 
-/* Visitor counter and angel button styles */
-.bottom-counters {
+/* RIP button and counter styles */
+.rip-section {
 position: fixed;
 bottom: 20px;
 left: 20px;
-right: 20px;
-display: flex;
-justify-content: space-between;
-align-items: flex-end;
-z-index: 5;
-pointer-events: none;
-}
-
-.angel-section {
 display: flex;
 flex-direction: column;
-align-items: flex-start;
+align-items: center;
+z-index: 5;
 pointer-events: auto;
 }
 
-.angel-button {
-background: linear-gradient(135deg, rgba(255,105,180,0.2), rgba(255,105,180,0.4));
-border: 2px solid rgba(255,105,180,0.6);
+.rip-button {
+background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.2));
+border: 1.5px solid rgba(255,255,255,0.3);
 border-radius: 50%;
-width: 60px;
-height: 60px;
+width: 45px;
+height: 45px;
 display: flex;
 align-items: center;
 justify-content: center;
 cursor: pointer;
 transition: all 0.3s ease;
 backdrop-filter: blur(10px);
-margin-bottom: 8px;
+margin-bottom: 6px;
 }
 
-.angel-button:hover {
-background: linear-gradient(135deg, rgba(255,105,180,0.4), rgba(255,105,180,0.6));
-border-color: rgba(255,105,180,0.9);
+.rip-button:hover {
+background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.3));
+border-color: rgba(255,255,255,0.5);
 transform: scale(1.1);
-box-shadow: 0 4px 20px rgba(255,105,180,0.3);
+box-shadow: 0 4px 15px rgba(255,255,255,0.2);
 }
 
-.angel-button:active {
+.rip-button:active {
 transform: scale(0.95);
 }
 
-.angel-icon {
-font-size: 20px;
+.dove-icon {
+font-size: 18px;
 color: rgba(255,255,255,0.9);
-text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-font-weight: normal;
+text-shadow: 0 1px 3px rgba(0,0,0,0.3);
 }
 
 .rip-counter {
-color: rgba(255,105,180,0.8);
+color: rgba(255,255,255,0.8);
 font-family: ‘Playfair Display’, serif;
-font-size: 0.9rem;
+font-size: 0.85rem;
 text-align: center;
 text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-margin-top: 4px;
+line-height: 1.2;
 }
 
-.visitor-counter {
-color: rgba(255,105,180,0.7);
-font-family: ‘Playfair Display’, serif;
-font-size: 0.9rem;
-text-align: right;
-text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-pointer-events: none;
-}
-
-/* Angel button animation when clicked */
-@keyframes angelBlessing {
+/* Button animation when clicked */
+@keyframes ripBlessing {
 0% { transform: scale(1); }
-25% { transform: scale(1.2) rotate(10deg); }
-50% { transform: scale(1.1) rotate(-5deg); }
-75% { transform: scale(1.15) rotate(5deg); }
-100% { transform: scale(1) rotate(0deg); }
+50% { transform: scale(1.2); }
+100% { transform: scale(1); }
 }
 
-.angel-button.blessing {
-animation: angelBlessing 0.6s ease-out;
+.rip-button.blessing {
+animation: ripBlessing 0.4s ease-out;
 }
 
-/* Floating heart animation */
-.floating-heart {
+/* Flying dove animation */
+.flying-dove {
 position: fixed;
-color: rgba(255,105,180,0.8);
 font-size: 20px;
+color: rgba(255,255,255,0.9);
 pointer-events: none;
-z-index: 10;
-animation: floatUp 2s ease-out forwards;
+z-index: 15;
+text-shadow: 0 2px 8px rgba(255,255,255,0.3);
+animation: flyToHeaven 3s ease-out forwards;
 }
 
-@keyframes floatUp {
+@keyframes flyToHeaven {
 0% {
 opacity: 1;
-transform: translateY(0) scale(1);
+transform: translateY(0) translateX(0) scale(1) rotate(0deg);
+}
+25% {
+opacity: 1;
+transform: translateY(-25vh) translateX(20px) scale(1.1) rotate(5deg);
+}
+50% {
+opacity: 0.8;
+transform: translateY(-50vh) translateX(-10px) scale(1.2) rotate(-3deg);
+}
+75% {
+opacity: 0.4;
+transform: translateY(-75vh) translateX(30px) scale(1.3) rotate(8deg);
 }
 100% {
 opacity: 0;
-transform: translateY(-100px) scale(1.5);
+transform: translateY(-100vh) translateX(10px) scale(1.5) rotate(0deg);
 }
 }
 
-/* Mobile responsiveness for counters */
+/* Alternative: Glowing orb animation */
+.spirit-orb {
+position: fixed;
+width: 12px;
+height: 12px;
+background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 30%, rgba(255,255,255,0) 100%);
+border-radius: 50%;
+pointer-events: none;
+z-index: 15;
+box-shadow:
+0 0 10px rgba(255,255,255,0.8),
+0 0 20px rgba(255,255,255,0.6),
+0 0 30px rgba(255,255,255,0.4);
+animation: spiritRise 4s ease-out forwards;
+}
+
+@keyframes spiritRise {
+0% {
+opacity: 1;
+transform: translateY(0) scale(0.5);
+}
+10% {
+opacity: 1;
+transform: translateY(-10vh) scale(1);
+}
+50% {
+opacity: 0.8;
+transform: translateY(-50vh) scale(1.2);
+}
+80% {
+opacity: 0.3;
+transform: translateY(-80vh) scale(1.5);
+}
+100% {
+opacity: 0;
+transform: translateY(-100vh) scale(2);
+}
+}
+
+/* Mobile responsiveness */
 @media (max-width: 480px) {
-.bottom-counters {
+.rip-section {
 bottom: 15px;
 left: 15px;
-right: 15px;
 }
 
-.angel-button {
-width: 50px;
-height: 50px;
+.rip-button {
+width: 40px;
+height: 40px;
 }
 
-.angel-icon {
-font-size: 20px;
+.dove-icon {
+font-size: 16px;
 }
 
-.rip-counter, .visitor-counter {
+.rip-counter {
 font-size: 0.8rem;
 }
 }
@@ -314,28 +344,21 @@ font-size: 0.8rem;
   Some photos couldn't be loaded, but the memories live on in our hearts
 </div>
 
-<!-- Bottom counters section -->
+<!-- RIP section -->
 
-<div class="bottom-counters">
-  <div class="angel-section">
-    <button class="angel-button" id="angelButton" title="Send a blessing">
-      <span class="angel-icon">🕊</span>
-    </button>
-    <div class="rip-counter">
-      <div>Rest In Peace</div>
-      <div id="ripCount">0</div>
-    </div>
-  </div>
-
-  <div class="visitor-counter">
-    <div id="visitorCount">1</div>
+<div class="rip-section">
+  <button class="rip-button" id="ripButton" title="Send a prayer">
+    <span class="dove-icon">🕊</span>
+  </button>
+  <div class="rip-counter">
+    <div>Rest In Peace</div>
+    <div id="ripCount">0</div>
   </div>
 </div>
 
 <canvas id="revealCanvas"></canvas>
 
 <div class="glow"></div>
-
 <script>
 const glow = document.querySelector('.glow');
 const canvas = document.getElementById('revealCanvas');
@@ -343,94 +366,14 @@ const ctx = canvas.getContext('2d');
 const loadingIndicator = document.getElementById('loadingIndicator');
 const instructionText = document.getElementById('instructionText');
 const errorMessage = document.getElementById('errorMessage');
-const angelButton = document.getElementById('angelButton');
+const ripButton = document.getElementById('ripButton');
 const ripCountElement = document.getElementById('ripCount');
-const visitorCountElement = document.getElementById('visitorCount');
 
 let radius = 120;
 let animationId = null;
 
-// Counter functions
-function updateVisitorCount() {
-  // In a real implementation, this would be an API call to increment visitor count
-  visitorCountElement.textContent = visitorCount.toLocaleString();
-}
-
-function updateRipCount() {
-  // In a real implementation, this would be an API call to increment RIP count
-  ripCountElement.textContent = ripCount.toLocaleString();
-}
-
-// Simulate active visitor count increases
-function simulateActiveVisitors() {
-  // Randomly increment visitor count every 30-120 seconds
-  const incrementVisitor = () => {
-    visitorCount++;
-    updateVisitorCount();
-    
-    // Schedule next increment
-    const nextIncrement = Math.random() * 90000 + 30000; // 30-120 seconds
-    setTimeout(incrementVisitor, nextIncrement);
-  };
-  
-  // Start the simulation after initial delay
-  const initialDelay = Math.random() * 60000 + 15000; // 15-75 seconds
-  setTimeout(incrementVisitor, initialDelay);
-}
-
-// Angel button functionality
-function createFloatingHeart(x, y) {
-  const heart = document.createElement('div');
-  heart.className = 'floating-heart';
-  heart.textContent = '♥';
-  heart.style.left = x + 'px';
-  heart.style.top = y + 'px';
-  document.body.appendChild(heart);
-  
-  // Remove heart after animation completes
-  setTimeout(() => {
-    if (heart.parentNode) {
-      heart.parentNode.removeChild(heart);
-    }
-  }, 2000);
-}
-
-angelButton.addEventListener('click', (e) => {
-  // Add blessing animation to button
-  angelButton.classList.add('blessing');
-  
-  // Increment RIP counter
-  ripCount++;
-  updateRipCount();
-  
-  // Create floating heart at button location
-  const rect = angelButton.getBoundingClientRect();
-  createFloatingHeart(rect.left + rect.width / 2, rect.top + rect.height / 2);
-  
-  // Remove animation class after animation completes
-  setTimeout(() => {
-    angelButton.classList.remove('blessing');
-  }, 600);
-  
-  // Prevent event bubbling
-  e.stopPropagation();
-});
-
-// Simulate visitor count (in real implementation, this would be fetched from server)
-function simulateVisitorData() {
-  // Generate a realistic visitor count (between 50-500 for demo)
-  visitorCount = Math.floor(Math.random() * 450) + 50;
-  
-  // Generate a realistic RIP count (typically 10-30% of visitor count)
-  ripCount = Math.floor(visitorCount * (0.1 + Math.random() * 0.2));
-  
-  updateVisitorCount();
-  updateRipCount();
-}
-
-// Initialize counters and start active visitor simulation
-simulateVisitorData();
-simulateActiveVisitors();
+// RIP counter - starts at 0
+let ripCount = 0;
 
 // Expandable image collection - add more images for larger screens
 const imageSources = [
@@ -484,7 +427,6 @@ function createPlaceholder(width, height) {
 function calculateGridSize() {
   const screenWidth = window.innerWidth;
   const screenHeight = window.innerHeight;
-  const screenArea = screenWidth * screenHeight;
   
   // Define target cell size ranges for different screen types
   let targetCellSize;
@@ -644,36 +586,68 @@ function initializeCanvas() {
   hideLoadingAndShowInstructions();
 }
 
-// Touch events with improved handling
-document.addEventListener('touchstart', e => {
-  e.preventDefault();
-  if (e.touches.length > 0) {
-    glow.style.opacity = '1';
-    updatePosition(e.touches[0].clientX, e.touches[0].clientY);
-  }
-}, { passive: false });
+// RIP counter function
+function updateRipCount() {
+  ripCountElement.textContent = ripCount.toLocaleString();
+}
 
-document.addEventListener('touchmove', e => {
-  e.preventDefault();
-  if (e.touches.length > 0) {
-    updatePosition(e.touches[0].clientX, e.touches[0].clientY);
-  }
-}, { passive: false });
+// Create flying dove animation
+function createFlyingDove(startX, startY) {
+  const dove = document.createElement('div');
+  dove.className = 'flying-dove';
+  dove.textContent = '🕊';
+  dove.style.left = startX + 'px';
+  dove.style.top = startY + 'px';
+  document.body.appendChild(dove);
+  
+  // Remove dove after animation completes
+  setTimeout(() => {
+    if (dove.parentNode) {
+      dove.parentNode.removeChild(dove);
+    }
+  }, 3000);
+}
 
-document.addEventListener('touchend', e => {
-  glow.style.opacity = '0';
-  drawMask(-9999, -9999);
-}, { passive: true });
+// Alternative: Create glowing spirit orb animation
+function createSpiritOrb(startX, startY) {
+  const orb = document.createElement('div');
+  orb.className = 'spirit-orb';
+  orb.style.left = startX + 'px';
+  orb.style.top = startY + 'px';
+  document.body.appendChild(orb);
+  
+  // Remove orb after animation completes
+  setTimeout(() => {
+    if (orb.parentNode) {
+      orb.parentNode.removeChild(orb);
+    }
+  }, 4000);
+}
 
-// Mouse events
-document.addEventListener('mousemove', e => {
-  glow.style.opacity = '1';
-  updatePosition(e.clientX, e.clientY);
-});
-
-document.addEventListener('mouseleave', () => {
-  glow.style.opacity = '0';
-  drawMask(-9999, -9999);
+// RIP button functionality
+ripButton.addEventListener('click', (e) => {
+  // Add blessing animation to button
+  ripButton.classList.add('blessing');
+  
+  // Increment RIP counter
+  ripCount++;
+  updateRipCount();
+  
+  // Get button position for animation start point
+  const rect = ripButton.getBoundingClientRect();
+  const startX = rect.left + rect.width / 2;
+  const startY = rect.top + rect.height / 2;
+  
+  // Create flying dove (you can switch to createSpiritOrb for orb effect)
+  createFlyingDove(startX, startY);
+  
+  // Remove animation class after animation completes
+  setTimeout(() => {
+    ripButton.classList.remove('blessing');
+  }, 400);
+  
+  // Prevent event bubbling
+  e.stopPropagation();
 });
 
 // Load images with smart loading - only load what we might need
@@ -709,35 +683,44 @@ function loadImagesForScreen() {
   }
 }
 
-// Handle window resize with debouncing and smart reloading
+// Touch events with improved handling
+document.addEventListener('touchstart', e => {
+  e.preventDefault();
+  if (e.touches.length > 0) {
+    glow.style.opacity = '1';
+    updatePosition(e.touches[0].clientX, e.touches[0].clientY);
+  }
+}, { passive: false });
+
+document.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (e.touches.length > 0) {
+    updatePosition(e.touches[0].clientX, e.touches[0].clientY);
+  }
+}, { passive: false });
+
+document.addEventListener('touchend', e => {
+  glow.style.opacity = '0';
+  drawMask(-9999, -9999);
+}, { passive: true });
+
+// Mouse events
+document.addEventListener('mousemove', e => {
+  glow.style.opacity = '1';
+  updatePosition(e.clientX, e.clientY);
+});
+
+document.addEventListener('mouseleave', () => {
+  glow.style.opacity = '0';
+  drawMask(-9999, -9999);
+});
+
+// Handle window resize with debouncing
 let resizeTimeout;
 window.addEventListener('resize', () => {
   clearTimeout(resizeTimeout);
   resizeTimeout = setTimeout(() => {
     if (isInitialized) {
-      const oldTotalImages = totalImages;
-      calculateGridSize();
-      
-      // If we need significantly more images, load them
-      if (totalImages > oldTotalImages && totalImages > loadedCount) {
-        const additionalImages = Math.min(imageSources.length - loadedCount, totalImages - loadedCount);
-        
-        for (let i = loadedCount; i < loadedCount + additionalImages; i++) {
-          if (i < imageSources.length && !images[i]) {
-            const img = new Image();
-            img.onload = () => {
-              images[i] = img;
-              resizeAndDrawCollage();
-              drawMask(-9999, -9999);
-            };
-            img.onerror = () => {
-              console.warn(`Failed to load additional image: ${imageSources[i]}`);
-            };
-            img.src = imageSources[i];
-          }
-        }
-      }
-      
       resizeAndDrawCollage();
       createFadeMask();
       drawMask(-9999, -9999);
@@ -745,7 +728,8 @@ window.addEventListener('resize', () => {
   }, 250);
 });
 
-// Initialize the image loading
+// Initialize RIP counter and start loading
+updateRipCount();
 loadImagesForScreen();
 
 // Fallback initialization in case no images load
@@ -757,5 +741,7 @@ setTimeout(() => {
 }, 10000); // 10 second timeout
 </script>
 
+</body>
+</html>
 </body>
 </html>
