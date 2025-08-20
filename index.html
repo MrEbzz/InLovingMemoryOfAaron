@@ -48,8 +48,6 @@ h1 {
 /* Glow element */
 .glow {
   position: fixed;
-  width: 180px;
-  height: 180px;
   background: radial-gradient(circle, rgba(255,105,180,0.8) 0%, rgba(255,105,180,0) 70%);
   border-radius: 50%;
   pointer-events: none;
@@ -88,12 +86,18 @@ const canvas = document.getElementById('revealCanvas');
 const ctx = canvas.getContext('2d');
 const img = new Image();
 img.src = 'Image1.png';
-const radius = 90;
 
 let w, h, scale;
-let fadeMask; // will store alpha mask
+let fadeMask, imageMask;
+let radius = 90; // will recalc dynamically
 
-// Resizes canvas to fit image nicely
+// Recalculate sizes dynamically
+function calcRadius() {
+  radius = Math.max(70, Math.min(140, window.innerWidth * 0.1));
+  glow.style.width = radius * 2 + 'px';
+  glow.style.height = radius * 2 + 'px';
+}
+
 function resizeCanvas() {
   const maxWidth = 800;
   scale = Math.min(window.innerWidth, maxWidth) / img.width;
@@ -102,18 +106,23 @@ function resizeCanvas() {
   canvas.width = w;
   canvas.height = h;
 }
+
 img.onload = () => {
+  calcRadius();
   resizeCanvas();
   createFadeMask();
+  createImageMask();
   window.addEventListener('resize', () => {
+    calcRadius();
     resizeCanvas();
     createFadeMask();
-    drawMask(-9999, -9999); // reset hidden
+    createImageMask();
+    drawMask(-9999, -9999);
   });
-  drawMask(-9999, -9999); // initially hidden
+  drawMask(-9999, -9999);
 };
 
-// Pre-render a soft circular fade as an offscreen canvas
+// Creates soft circle reveal mask
 function createFadeMask() {
   fadeMask = document.createElement('canvas');
   fadeMask.width = radius * 2;
@@ -128,21 +137,41 @@ function createFadeMask() {
   mctx.fill();
 }
 
-// Draw the mask at given local coordinates
+// Creates full-image rounded edge mask
+function createImageMask() {
+  imageMask = document.createElement('canvas');
+  imageMask.width = w;
+  imageMask.height = h;
+  const mctx = imageMask.getContext('2d');
+  const grad = mctx.createRadialGradient(w/2, h/2, Math.min(w,h)*0.45, w/2, h/2, Math.min(w,h)*0.5);
+  grad.addColorStop(0, 'rgba(0,0,0,1)');
+  grad.addColorStop(1, 'rgba(0,0,0,0)');
+  mctx.fillStyle = grad;
+  mctx.fillRect(0, 0, w, h);
+}
+
+// Draw masked image at local coords
 function drawMask(x, y) {
   ctx.clearRect(0, 0, w, h);
-  // Start by filling black overlay
+
+  // Black background base
   ctx.fillStyle = 'black';
   ctx.fillRect(0, 0, w, h);
+
   if (x > 0 && y > 0) {
-    // Punch soft hole using fade mask
+    // Punch a hole in black where the glow is
     ctx.save();
     ctx.globalCompositeOperation = 'destination-out';
     ctx.drawImage(fadeMask, x - radius, y - radius);
     ctx.restore();
-    // Redraw image underneath the cleared part
+
+    // Draw image behind hole
     ctx.globalCompositeOperation = 'destination-over';
     ctx.drawImage(img, 0, 0, w, h);
+
+    // Feather the whole image edges
+    ctx.globalCompositeOperation = 'destination-in';
+    ctx.drawImage(imageMask, 0, 0);
     ctx.globalCompositeOperation = 'source-over';
   }
 }
@@ -175,7 +204,7 @@ document.addEventListener('touchend', e => {
   drawMask(-9999, -9999);
 }, { passive: true });
 
-// Mouse support for desktop testing
+// Mouse support
 document.addEventListener('mousemove', e => {
   glow.style.opacity = '1';
   updatePosition(e.clientX, e.clientY);
