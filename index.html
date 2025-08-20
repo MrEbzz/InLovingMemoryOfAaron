@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="utf-8" />
@@ -17,155 +18,283 @@ html, body {
 }
 
 body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  box-sizing: border-box;
-  position: relative;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+text-align: center;
+box-sizing: border-box;
+position: relative;
 }
 
 h1 {
-  font-family: 'Playfair Display', serif;
-  font-weight: 600;
-  line-height: 1.3;
-  font-size: clamp(1.8rem, 6vw, 4.5rem);
-  color: #ff69b4;
-  text-shadow:
-    1.5px 0 0 #000,
-    -1.5px 0 0 #000,
-    0 1.5px 0 #000,
-    0 -1.5px 0 #000,
-    0 6px 18px rgba(255,105,180,0.5);
-  animation: heartbeat 2s infinite;
-  z-index: 2;
-  position: relative;
-  margin: 0;
-  padding: 20px;
+font-family: ‘Playfair Display’, serif;
+font-weight: 600;
+line-height: 1.3;
+font-size: clamp(1.8rem, 6vw, 4.5rem);
+color: #ff69b4;
+text-shadow:
+1.5px 0 0 #000,
+-1.5px 0 0 #000,
+0 1.5px 0 #000,
+0 -1.5px 0 #000,
+0 6px 18px rgba(255,105,180,0.5);
+animation: heartbeat 2s infinite;
+z-index: 2;
+position: relative;
+margin: 0;
+padding: 20px;
 }
 
 @keyframes heartbeat {
-  0%,100% { 
-    text-shadow: 1.5px 0 0 #000, -1.5px 0 0 #000, 0 1.5px 0 #000, 0 -1.5px 0 #000, 0 6px 18px rgba(255,105,180,0.5);
-    transform: scale(1);
-  }
-  25% { 
-    text-shadow: 2px 0 0 #000, -2px 0 0 #000, 0 2px 0 #000, 0 -2px 0 #000, 0 10px 30px rgba(255,105,180,0.9);
-    transform: scale(1.02);
-  }
-  50% { 
-    text-shadow: 1.5px 0 0 #000, -1.5px 0 0 #000, 0 1.5px 0 #000, 0 -1.5px 0 #000, 0 6px 18px rgba(255,105,180,0.5);
-    transform: scale(1);
-  }
-  75% { 
-    text-shadow: 2.5px 0 0 #000, -2.5px 0 0 #000, 0 2.5px 0 #000, 0 -2.5px 0 #000, 0 12px 36px rgba(255,105,180,1);
-    transform: scale(1.03);
-  }
+0%,100% {
+text-shadow: 1.5px 0 0 #000, -1.5px 0 0 #000, 0 1.5px 0 #000, 0 -1.5px 0 #000, 0 6px 18px rgba(255,105,180,0.5);
+transform: scale(1);
+}
+25% {
+text-shadow: 2px 0 0 #000, -2px 0 0 #000, 0 2px 0 #000, 0 -2px 0 #000, 0 10px 30px rgba(255,105,180,0.9);
+transform: scale(1.02);
+}
+50% {
+text-shadow: 1.5px 0 0 #000, -1.5px 0 0 #000, 0 1.5px 0 #000, 0 -1.5px 0 #000, 0 6px 18px rgba(255,105,180,0.5);
+transform: scale(1);
+}
+75% {
+text-shadow: 2.5px 0 0 #000, -2.5px 0 0 #000, 0 2.5px 0 #000, 0 -2.5px 0 #000, 0 12px 36px rgba(255,105,180,1);
+transform: scale(1.03);
+}
 }
 
 .glow {
-  position: fixed;
-  width: 200px;
-  height: 200px;
-  background: radial-gradient(circle, rgba(255,105,180,0.8) 0%, rgba(255,105,180,0) 70%);
-  border-radius: 50%;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  z-index: 3;
-  transition: opacity 0.15s ease;
-  opacity: 0;
+position: fixed;
+width: 200px;
+height: 200px;
+background: radial-gradient(circle, rgba(255,105,180,0.8) 0%, rgba(255,105,180,0) 70%);
+border-radius: 50%;
+pointer-events: none;
+transform: translate(-50%, -50%);
+z-index: 3;
+transition: opacity 0.15s ease;
+opacity: 0;
 }
 
 #revealCanvas {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1;
-  pointer-events: none;
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+z-index: 1;
+pointer-events: none;
 }
 
 .loading {
-  position: fixed;
-  top: 60%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: #ff69b4;
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(1rem, 3vw, 1.5rem);
-  z-index: 10;
-  opacity: 1;
-  transition: opacity 0.5s ease;
+position: fixed;
+top: 60%;
+left: 50%;
+transform: translate(-50%, -50%);
+color: #ff69b4;
+font-family: ‘Playfair Display’, serif;
+font-size: clamp(1rem, 3vw, 1.5rem);
+z-index: 10;
+opacity: 1;
+transition: opacity 0.5s ease;
 }
 
 .loading.hidden {
-  opacity: 0;
-  pointer-events: none;
+opacity: 0;
+pointer-events: none;
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
+0%, 100% { opacity: 0.6; }
+50% { opacity: 1; }
 }
 
 .loading::after {
-  content: '';
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  border: 2px solid #ff69b4;
-  border-radius: 50%;
-  border-top-color: transparent;
-  animation: spin 1s linear infinite;
-  margin-left: 10px;
-  vertical-align: middle;
+content: ‘’;
+display: inline-block;
+width: 20px;
+height: 20px;
+border: 2px solid #ff69b4;
+border-radius: 50%;
+border-top-color: transparent;
+animation: spin 1s linear infinite;
+margin-left: 10px;
+vertical-align: middle;
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+to { transform: rotate(360deg); }
 }
 
 .instruction {
-  position: fixed;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  color: rgba(255,105,180,0.8);
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(0.9rem, 2.5vw, 1.2rem);
-  z-index: 4;
-  text-align: center;
-  animation: pulse 3s ease-in-out infinite;
-  opacity: 0;
-  transition: opacity 1s ease;
+position: fixed;
+bottom: 30px;
+left: 50%;
+transform: translateX(-50%);
+color: rgba(255,105,180,0.8);
+font-family: ‘Playfair Display’, serif;
+font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+z-index: 4;
+text-align: center;
+animation: pulse 3s ease-in-out infinite;
+opacity: 0;
+transition: opacity 1s ease;
 }
 
 .instruction.visible {
-  opacity: 1;
+opacity: 1;
 }
 
 /* Fallback for when images fail to load */
 .error-message {
-  position: fixed;
-  top: 70%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: rgba(255,105,180,0.7);
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(0.9rem, 2.5vw, 1.1rem);
-  text-align: center;
-  z-index: 5;
-  opacity: 0;
-  transition: opacity 0.5s ease;
-  max-width: 80%;
-  line-height: 1.5;
+position: fixed;
+top: 70%;
+left: 50%;
+transform: translate(-50%, -50%);
+color: rgba(255,105,180,0.7);
+font-family: ‘Playfair Display’, serif;
+font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+text-align: center;
+z-index: 5;
+opacity: 0;
+transition: opacity 0.5s ease;
+max-width: 80%;
+line-height: 1.5;
 }
 
 .error-message.visible {
-  opacity: 1;
+opacity: 1;
+}
+
+/* Visitor counter and angel button styles */
+.bottom-counters {
+position: fixed;
+bottom: 20px;
+left: 20px;
+right: 20px;
+display: flex;
+justify-content: space-between;
+align-items: flex-end;
+z-index: 5;
+pointer-events: none;
+}
+
+.angel-section {
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+pointer-events: auto;
+}
+
+.angel-button {
+background: linear-gradient(135deg, rgba(255,105,180,0.2), rgba(255,105,180,0.4));
+border: 2px solid rgba(255,105,180,0.6);
+border-radius: 50%;
+width: 60px;
+height: 60px;
+display: flex;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+transition: all 0.3s ease;
+backdrop-filter: blur(10px);
+margin-bottom: 8px;
+}
+
+.angel-button:hover {
+background: linear-gradient(135deg, rgba(255,105,180,0.4), rgba(255,105,180,0.6));
+border-color: rgba(255,105,180,0.9);
+transform: scale(1.1);
+box-shadow: 0 4px 20px rgba(255,105,180,0.3);
+}
+
+.angel-button:active {
+transform: scale(0.95);
+}
+
+.angel-icon {
+font-size: 20px;
+color: rgba(255,255,255,0.9);
+text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+font-weight: normal;
+}
+
+.rip-counter {
+color: rgba(255,105,180,0.8);
+font-family: ‘Playfair Display’, serif;
+font-size: 0.9rem;
+text-align: center;
+text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+margin-top: 4px;
+}
+
+.visitor-counter {
+color: rgba(255,105,180,0.7);
+font-family: ‘Playfair Display’, serif;
+font-size: 0.9rem;
+text-align: right;
+text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+pointer-events: none;
+}
+
+/* Angel button animation when clicked */
+@keyframes angelBlessing {
+0% { transform: scale(1); }
+25% { transform: scale(1.2) rotate(10deg); }
+50% { transform: scale(1.1) rotate(-5deg); }
+75% { transform: scale(1.15) rotate(5deg); }
+100% { transform: scale(1) rotate(0deg); }
+}
+
+.angel-button.blessing {
+animation: angelBlessing 0.6s ease-out;
+}
+
+/* Floating heart animation */
+.floating-heart {
+position: fixed;
+color: rgba(255,105,180,0.8);
+font-size: 20px;
+pointer-events: none;
+z-index: 10;
+animation: floatUp 2s ease-out forwards;
+}
+
+@keyframes floatUp {
+0% {
+opacity: 1;
+transform: translateY(0) scale(1);
+}
+100% {
+opacity: 0;
+transform: translateY(-100px) scale(1.5);
+}
+}
+
+/* Mobile responsiveness for counters */
+@media (max-width: 480px) {
+.bottom-counters {
+bottom: 15px;
+left: 15px;
+right: 15px;
+}
+
+.angel-button {
+width: 50px;
+height: 50px;
+}
+
+.angel-icon {
+font-size: 20px;
+}
+
+.rip-counter, .visitor-counter {
+font-size: 0.8rem;
+}
 }
 </style>
+
 </head>
 <body>
 <h1>
@@ -185,7 +314,26 @@ h1 {
   Some photos couldn't be loaded, but the memories live on in our hearts
 </div>
 
+<!-- Bottom counters section -->
+
+<div class="bottom-counters">
+  <div class="angel-section">
+    <button class="angel-button" id="angelButton" title="Send a blessing">
+      <span class="angel-icon">🕊</span>
+    </button>
+    <div class="rip-counter">
+      <div>Rest In Peace</div>
+      <div id="ripCount">0</div>
+    </div>
+  </div>
+
+  <div class="visitor-counter">
+    <div id="visitorCount">1</div>
+  </div>
+</div>
+
 <canvas id="revealCanvas"></canvas>
+
 <div class="glow"></div>
 
 <script>
@@ -195,16 +343,107 @@ const ctx = canvas.getContext('2d');
 const loadingIndicator = document.getElementById('loadingIndicator');
 const instructionText = document.getElementById('instructionText');
 const errorMessage = document.getElementById('errorMessage');
+const angelButton = document.getElementById('angelButton');
+const ripCountElement = document.getElementById('ripCount');
+const visitorCountElement = document.getElementById('visitorCount');
 
 let radius = 120;
 let animationId = null;
 
-// Load multiple images with error handling
+// Counter functions
+function updateVisitorCount() {
+  // In a real implementation, this would be an API call to increment visitor count
+  visitorCountElement.textContent = visitorCount.toLocaleString();
+}
+
+function updateRipCount() {
+  // In a real implementation, this would be an API call to increment RIP count
+  ripCountElement.textContent = ripCount.toLocaleString();
+}
+
+// Simulate active visitor count increases
+function simulateActiveVisitors() {
+  // Randomly increment visitor count every 30-120 seconds
+  const incrementVisitor = () => {
+    visitorCount++;
+    updateVisitorCount();
+    
+    // Schedule next increment
+    const nextIncrement = Math.random() * 90000 + 30000; // 30-120 seconds
+    setTimeout(incrementVisitor, nextIncrement);
+  };
+  
+  // Start the simulation after initial delay
+  const initialDelay = Math.random() * 60000 + 15000; // 15-75 seconds
+  setTimeout(incrementVisitor, initialDelay);
+}
+
+// Angel button functionality
+function createFloatingHeart(x, y) {
+  const heart = document.createElement('div');
+  heart.className = 'floating-heart';
+  heart.textContent = '♥';
+  heart.style.left = x + 'px';
+  heart.style.top = y + 'px';
+  document.body.appendChild(heart);
+  
+  // Remove heart after animation completes
+  setTimeout(() => {
+    if (heart.parentNode) {
+      heart.parentNode.removeChild(heart);
+    }
+  }, 2000);
+}
+
+angelButton.addEventListener('click', (e) => {
+  // Add blessing animation to button
+  angelButton.classList.add('blessing');
+  
+  // Increment RIP counter
+  ripCount++;
+  updateRipCount();
+  
+  // Create floating heart at button location
+  const rect = angelButton.getBoundingClientRect();
+  createFloatingHeart(rect.left + rect.width / 2, rect.top + rect.height / 2);
+  
+  // Remove animation class after animation completes
+  setTimeout(() => {
+    angelButton.classList.remove('blessing');
+  }, 600);
+  
+  // Prevent event bubbling
+  e.stopPropagation();
+});
+
+// Simulate visitor count (in real implementation, this would be fetched from server)
+function simulateVisitorData() {
+  // Generate a realistic visitor count (between 50-500 for demo)
+  visitorCount = Math.floor(Math.random() * 450) + 50;
+  
+  // Generate a realistic RIP count (typically 10-30% of visitor count)
+  ripCount = Math.floor(visitorCount * (0.1 + Math.random() * 0.2));
+  
+  updateVisitorCount();
+  updateRipCount();
+}
+
+// Initialize counters and start active visitor simulation
+simulateVisitorData();
+simulateActiveVisitors();
+
+// Expandable image collection - add more images for larger screens
 const imageSources = [
   'img1.jpg','img2.jpg','img3.jpg','img4.jpg','img5.jpg',
   'img6.jpg','img7.jpg','img8.jpg','img9.jpg','img10.jpg',
   'img11.jpg','img12.jpg','img13.jpg','img14.jpg','img15.jpg',
-  'img16.jpg','img17.jpg','img18.jpg','img19.jpg','img20.jpg'
+  'img16.jpg','img17.jpg','img18.jpg','img19.jpg','img20.jpg',
+  'img21.jpg','img22.jpg','img23.jpg','img24.jpg','img25.jpg',
+  'img26.jpg','img27.jpg','img28.jpg','img29.jpg','img30.jpg',
+  'img31.jpg','img32.jpg','img33.jpg','img34.jpg','img35.jpg',
+  'img36.jpg','img37.jpg','img38.jpg','img39.jpg','img40.jpg',
+  'img41.jpg','img42.jpg','img43.jpg','img44.jpg','img45.jpg',
+  'img46.jpg','img47.jpg','img48.jpg','img49.jpg','img50.jpg'
 ];
 
 const images = [];
@@ -213,7 +452,7 @@ let errorCount = 0;
 let bufferCanvas = document.createElement('canvas');
 let bufferCtx = bufferCanvas.getContext('2d');
 
-let w, h;
+let w, h, cols, rows, totalImages;
 let fadeMask;
 let isInitialized = false;
 
@@ -241,18 +480,63 @@ function createPlaceholder(width, height) {
   return placeholderCanvas;
 }
 
-// Resize and draw collage onto buffer
-function resizeAndDrawCollage() {
-  const cols = 5; // 5 columns * 4 rows = 20 images
-  const rows = 4;
+// Calculate optimal grid size based on screen dimensions
+function calculateGridSize() {
+  const screenWidth = window.innerWidth;
+  const screenHeight = window.innerHeight;
+  const screenArea = screenWidth * screenHeight;
   
+  // Define target cell size ranges for different screen types
+  let targetCellSize;
+  
+  if (screenWidth <= 480) {
+    // Phone: smaller cells, fewer images
+    targetCellSize = Math.min(screenWidth, screenHeight) * 0.2;
+    cols = Math.floor((screenWidth * 0.9) / targetCellSize);
+    rows = Math.floor((screenHeight * 0.7) / targetCellSize);
+  } else if (screenWidth <= 768) {
+    // Tablet: medium cells, more images
+    targetCellSize = Math.min(screenWidth, screenHeight) * 0.15;
+    cols = Math.floor((screenWidth * 0.9) / targetCellSize);
+    rows = Math.floor((screenHeight * 0.8) / targetCellSize);
+  } else if (screenWidth <= 1200) {
+    // Small laptop/desktop
+    targetCellSize = Math.min(screenWidth, screenHeight) * 0.12;
+    cols = Math.floor((screenWidth * 0.9) / targetCellSize);
+    rows = Math.floor((screenHeight * 0.85) / targetCellSize);
+  } else {
+    // Large desktop: smallest cells, maximum images
+    targetCellSize = Math.min(screenWidth, screenHeight) * 0.1;
+    cols = Math.floor((screenWidth * 0.9) / targetCellSize);
+    rows = Math.floor((screenHeight * 0.9) / targetCellSize);
+  }
+  
+  // Ensure minimum grid size
+  cols = Math.max(cols, 3);
+  rows = Math.max(rows, 2);
+  
+  // Cap maximum for performance
+  cols = Math.min(cols, 12);
+  rows = Math.min(rows, 8);
+  
+  totalImages = cols * rows;
+  
+  // Adjust cell size to fill screen optimally
   const maxWidth = window.innerWidth * 0.9;
   const maxHeight = window.innerHeight * 0.9;
-
-  // Calculate cell size to fit screen
-  const cellSize = Math.min(maxWidth / cols, maxHeight / rows);
+  const cellWidth = maxWidth / cols;
+  const cellHeight = maxHeight / rows;
+  const cellSize = Math.min(cellWidth, cellHeight);
+  
   w = cellSize * cols;
   h = cellSize * rows;
+  
+  return cellSize;
+}
+
+// Resize and draw collage onto buffer
+function resizeAndDrawCollage() {
+  const cellSize = calculateGridSize();
   
   canvas.width = w;
   canvas.height = h;
@@ -262,20 +546,28 @@ function resizeAndDrawCollage() {
   // Draw all images into buffer grid
   bufferCtx.clearRect(0, 0, w, h);
   let i = 0;
+  
   for(let r = 0; r < rows; r++){
     for(let c = 0; c < cols; c++){
       const x = c * cellSize;
       const y = r * cellSize;
       
-      if(images[i]) {
-        bufferCtx.drawImage(images[i], x, y, cellSize, cellSize);
+      // Use modulo to cycle through available images if we need more than we have
+      const imageIndex = i % imageSources.length;
+      
+      if(images[imageIndex]) {
+        bufferCtx.drawImage(images[imageIndex], x, y, cellSize, cellSize);
       } else {
         // Use placeholder for missing images
         const placeholder = createPlaceholder(cellSize, cellSize);
         bufferCtx.drawImage(placeholder, x, y);
       }
       i++;
+      
+      // Stop if we've filled all grid positions
+      if (i >= totalImages) break;
     }
+    if (i >= totalImages) break;
   }
 }
 
@@ -384,44 +676,77 @@ document.addEventListener('mouseleave', () => {
   drawMask(-9999, -9999);
 });
 
-// Load all images with comprehensive error handling
-imageSources.forEach((src, index) => {
-  const img = new Image();
+// Load images with smart loading - only load what we might need
+function loadImagesForScreen() {
+  // Calculate how many images we might need
+  calculateGridSize();
+  const imagesToLoad = Math.min(imageSources.length, Math.max(totalImages, 20)); // Always load at least 20
   
-  img.onload = () => {
-    images[index] = img;
-    loadedCount++;
+  // Load images up to what we need
+  for (let i = 0; i < imagesToLoad; i++) {
+    const img = new Image();
     
-    if (loadedCount + errorCount === imageSources.length) {
-      initializeCanvas();
-    }
-  };
-  
-  img.onerror = () => {
-    console.warn(`Failed to load image: ${src}`);
-    errorCount++;
+    img.onload = () => {
+      images[i] = img;
+      loadedCount++;
+      
+      if (loadedCount + errorCount >= imagesToLoad) {
+        initializeCanvas();
+      }
+    };
     
-    if (loadedCount + errorCount === imageSources.length) {
-      initializeCanvas();
-    }
-  };
-  
-  // Set source after event handlers to avoid race conditions
-  img.src = src;
-});
+    img.onerror = () => {
+      console.warn(`Failed to load image: ${imageSources[i]}`);
+      errorCount++;
+      
+      if (loadedCount + errorCount >= imagesToLoad) {
+        initializeCanvas();
+      }
+    };
+    
+    // Set source after event handlers to avoid race conditions
+    img.src = imageSources[i];
+  }
+}
 
-// Handle window resize with debouncing
+// Handle window resize with debouncing and smart reloading
 let resizeTimeout;
 window.addEventListener('resize', () => {
   clearTimeout(resizeTimeout);
   resizeTimeout = setTimeout(() => {
     if (isInitialized) {
+      const oldTotalImages = totalImages;
+      calculateGridSize();
+      
+      // If we need significantly more images, load them
+      if (totalImages > oldTotalImages && totalImages > loadedCount) {
+        const additionalImages = Math.min(imageSources.length - loadedCount, totalImages - loadedCount);
+        
+        for (let i = loadedCount; i < loadedCount + additionalImages; i++) {
+          if (i < imageSources.length && !images[i]) {
+            const img = new Image();
+            img.onload = () => {
+              images[i] = img;
+              resizeAndDrawCollage();
+              drawMask(-9999, -9999);
+            };
+            img.onerror = () => {
+              console.warn(`Failed to load additional image: ${imageSources[i]}`);
+            };
+            img.src = imageSources[i];
+          }
+        }
+      }
+      
       resizeAndDrawCollage();
       createFadeMask();
       drawMask(-9999, -9999);
     }
   }, 250);
 });
+
+// Initialize the image loading
+loadImagesForScreen();
 
 // Fallback initialization in case no images load
 setTimeout(() => {
@@ -431,5 +756,6 @@ setTimeout(() => {
   }
 }, 10000); // 10 second timeout
 </script>
+
 </body>
 </html>
