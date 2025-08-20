@@ -4,15 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 <title>In Memory Of Aaron Anthony Ebanks</title>
-
-<!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
-
-<!-- Favicon -->
-<link rel="icon" href="icons8-bmw-100.png" type="image/png">
-<link rel="shortcut icon" href="icons8-bmw-100.png" type="image/png">
-<link rel="apple-touch-icon" sizes="180x180" href="icons8-bmw-100.png">
-
 <style>
 html, body {
   height: 100%;
@@ -56,6 +48,8 @@ h1 {
 /* Glow element */
 .glow {
   position: fixed;
+  width: 180px;
+  height: 180px;
   background: radial-gradient(circle, rgba(255,105,180,0.8) 0%, rgba(255,105,180,0) 70%);
   border-radius: 50%;
   pointer-events: none;
@@ -71,8 +65,8 @@ h1 {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  max-width: none; /* allow larger image */
-  width: auto;
+  max-width: 800px;
+  width: 100%;
   height: auto;
   z-index: 1;
   pointer-events: none;
@@ -94,43 +88,32 @@ const canvas = document.getElementById('revealCanvas');
 const ctx = canvas.getContext('2d');
 const img = new Image();
 img.src = 'Image1.png';
+const radius = 90;
 
 let w, h, scale;
-let fadeMask, imageMask;
-let radius = 120; // increased reveal radius
-let glowScale = 1;
+let fadeMask; // will store alpha mask
 
-// Recalculate sizes dynamically
-function calcRadius() {
-  glow.style.width = radius * 2 * glowScale + 'px';
-  glow.style.height = radius * 2 * glowScale + 'px';
-}
-
+// Resizes canvas to fit image nicely
 function resizeCanvas() {
-  // scale image to fit window more fully
-  scale = Math.min(window.innerWidth / img.width, window.innerHeight / img.height) * 1.2; // increase size 20%
+  const maxWidth = 800;
+  scale = Math.min(window.innerWidth, maxWidth) / img.width;
   w = img.width * scale;
   h = img.height * scale;
   canvas.width = w;
   canvas.height = h;
 }
-
 img.onload = () => {
-  calcRadius();
   resizeCanvas();
   createFadeMask();
-  createImageMask();
   window.addEventListener('resize', () => {
-    calcRadius();
     resizeCanvas();
     createFadeMask();
-    createImageMask();
-    drawMask(-9999, -9999);
+    drawMask(-9999, -9999); // reset hidden
   });
-  drawMask(-9999, -9999);
+  drawMask(-9999, -9999); // initially hidden
 };
 
-// Creates soft circle reveal mask
+// Pre-render a soft circular fade as an offscreen canvas
 function createFadeMask() {
   fadeMask = document.createElement('canvas');
   fadeMask.width = radius * 2;
@@ -145,38 +128,21 @@ function createFadeMask() {
   mctx.fill();
 }
 
-// Creates full-image rounded edge mask
-function createImageMask() {
-  imageMask = document.createElement('canvas');
-  imageMask.width = w;
-  imageMask.height = h;
-  const mctx = imageMask.getContext('2d');
-  const grad = mctx.createRadialGradient(w/2, h/2, Math.min(w,h)*0.45, w/2, h/2, Math.min(w,h)*0.5);
-  grad.addColorStop(0, 'rgba(0,0,0,1)');
-  grad.addColorStop(1, 'rgba(0,0,0,0)');
-  mctx.fillStyle = grad;
-  mctx.fillRect(0, 0, w, h);
-}
-
-// Draw masked image at local coords
+// Draw the mask at given local coordinates
 function drawMask(x, y) {
   ctx.clearRect(0, 0, w, h);
-
-  // Black background base
+  // Start by filling black overlay
   ctx.fillStyle = 'black';
   ctx.fillRect(0, 0, w, h);
-
   if (x > 0 && y > 0) {
+    // Punch soft hole using fade mask
     ctx.save();
     ctx.globalCompositeOperation = 'destination-out';
     ctx.drawImage(fadeMask, x - radius, y - radius);
     ctx.restore();
-
+    // Redraw image underneath the cleared part
     ctx.globalCompositeOperation = 'destination-over';
     ctx.drawImage(img, 0, 0, w, h);
-
-    ctx.globalCompositeOperation = 'destination-in';
-    ctx.drawImage(imageMask, 0, 0);
     ctx.globalCompositeOperation = 'source-over';
   }
 }
@@ -209,7 +175,7 @@ document.addEventListener('touchend', e => {
   drawMask(-9999, -9999);
 }, { passive: true });
 
-// Mouse support
+// Mouse support for desktop testing
 document.addEventListener('mousemove', e => {
   glow.style.opacity = '1';
   updatePosition(e.clientX, e.clientY);
