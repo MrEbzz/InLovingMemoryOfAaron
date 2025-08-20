@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<meta name="description" content="A memorial page honoring Aaron Anthony Ebanks - move your cursor or touch to reveal cherished memories" />
 <title>In Memory Of Aaron Anthony Ebanks</title>
 <link rel="icon" type="image/png" href="icons8-bmw-100.png">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
@@ -14,6 +15,7 @@ html, body {
   overflow: hidden;
   background: #000;
 }
+
 body {
   display: flex;
   flex-direction: column;
@@ -23,6 +25,7 @@ body {
   box-sizing: border-box;
   position: relative;
 }
+
 h1 {
   font-family: 'Playfair Display', serif;
   font-weight: 600;
@@ -38,12 +41,27 @@ h1 {
   animation: heartbeat 2s infinite;
   z-index: 2;
   position: relative;
+  margin: 0;
+  padding: 20px;
 }
+
 @keyframes heartbeat {
-  0%,100% { text-shadow: 1.5px 0 0 #000, -1.5px 0 0 #000, 0 1.5px 0 #000, 0 -1.5px 0 #000, 0 6px 18px rgba(255,105,180,0.5);}
-  25% { text-shadow: 2px 0 0 #000, -2px 0 0 #000, 0 2px 0 #000, 0 -2px 0 #000, 0 10px 30px rgba(255,105,180,0.9);}
-  50% { text-shadow: 1.5px 0 0 #000, -1.5px 0 0 #000, 0 1.5px 0 #000, 0 -1.5px 0 #000, 0 6px 18px rgba(255,105,180,0.5);}
-  75% { text-shadow: 2.5px 0 0 #000, -2.5px 0 0 #000, 0 2.5px 0 #000, 0 -2.5px 0 #000, 0 12px 36px rgba(255,105,180,1);}
+  0%,100% { 
+    text-shadow: 1.5px 0 0 #000, -1.5px 0 0 #000, 0 1.5px 0 #000, 0 -1.5px 0 #000, 0 6px 18px rgba(255,105,180,0.5);
+    transform: scale(1);
+  }
+  25% { 
+    text-shadow: 2px 0 0 #000, -2px 0 0 #000, 0 2px 0 #000, 0 -2px 0 #000, 0 10px 30px rgba(255,105,180,0.9);
+    transform: scale(1.02);
+  }
+  50% { 
+    text-shadow: 1.5px 0 0 #000, -1.5px 0 0 #000, 0 1.5px 0 #000, 0 -1.5px 0 #000, 0 6px 18px rgba(255,105,180,0.5);
+    transform: scale(1);
+  }
+  75% { 
+    text-shadow: 2.5px 0 0 #000, -2.5px 0 0 #000, 0 2.5px 0 #000, 0 -2.5px 0 #000, 0 12px 36px rgba(255,105,180,1);
+    transform: scale(1.03);
+  }
 }
 
 .glow {
@@ -67,6 +85,86 @@ h1 {
   z-index: 1;
   pointer-events: none;
 }
+
+.loading {
+  position: fixed;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #ff69b4;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1rem, 3vw, 1.5rem);
+  z-index: 10;
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+
+.loading.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+.loading::after {
+  content: '';
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ff69b4;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 1s linear infinite;
+  margin-left: 10px;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.instruction {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255,105,180,0.8);
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+  z-index: 4;
+  text-align: center;
+  animation: pulse 3s ease-in-out infinite;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+
+.instruction.visible {
+  opacity: 1;
+}
+
+/* Fallback for when images fail to load */
+.error-message {
+  position: fixed;
+  top: 70%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: rgba(255,105,180,0.7);
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+  text-align: center;
+  z-index: 5;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  max-width: 80%;
+  line-height: 1.5;
+}
+
+.error-message.visible {
+  opacity: 1;
+}
 </style>
 </head>
 <body>
@@ -75,6 +173,18 @@ h1 {
   <span style="white-space: nowrap;">Aaron Anthony Ebanks</span>
 </h1>
 
+<div class="loading" id="loadingIndicator">
+  Loading cherished memories...
+</div>
+
+<div class="instruction" id="instructionText">
+  Move your cursor or touch the screen to reveal photos
+</div>
+
+<div class="error-message" id="errorMessage">
+  Some photos couldn't be loaded, but the memories live on in our hearts
+</div>
+
 <canvas id="revealCanvas"></canvas>
 <div class="glow"></div>
 
@@ -82,36 +192,93 @@ h1 {
 const glow = document.querySelector('.glow');
 const canvas = document.getElementById('revealCanvas');
 const ctx = canvas.getContext('2d');
-const img = new Image();
-img.src = 'Image2.png';
+const loadingIndicator = document.getElementById('loadingIndicator');
+const instructionText = document.getElementById('instructionText');
+const errorMessage = document.getElementById('errorMessage');
+
 let radius = 120;
+let animationId = null;
 
-let w, h, scale;
+// Load multiple images with error handling
+const imageSources = [
+  'img1.jpg','img2.jpg','img3.jpg','img4.jpg','img5.jpg',
+  'img6.jpg','img7.jpg','img8.jpg','img9.jpg','img10.jpg',
+  'img11.jpg','img12.jpg','img13.jpg','img14.jpg','img15.jpg',
+  'img16.jpg','img17.jpg','img18.jpg','img19.jpg','img20.jpg'
+];
+
+const images = [];
+let loadedCount = 0;
+let errorCount = 0;
+let bufferCanvas = document.createElement('canvas');
+let bufferCtx = bufferCanvas.getContext('2d');
+
+let w, h;
 let fadeMask;
+let isInitialized = false;
 
-// Resize canvas dynamically and keep centered
-function resizeCanvas() {
+// Create a placeholder image for failed loads
+function createPlaceholder(width, height) {
+  const placeholderCanvas = document.createElement('canvas');
+  placeholderCanvas.width = width;
+  placeholderCanvas.height = height;
+  const pCtx = placeholderCanvas.getContext('2d');
+  
+  // Create a subtle gradient background
+  const grad = pCtx.createLinearGradient(0, 0, width, height);
+  grad.addColorStop(0, 'rgba(255,105,180,0.1)');
+  grad.addColorStop(1, 'rgba(255,105,180,0.05)');
+  pCtx.fillStyle = grad;
+  pCtx.fillRect(0, 0, width, height);
+  
+  // Add a heart symbol
+  pCtx.fillStyle = 'rgba(255,105,180,0.3)';
+  pCtx.font = `${Math.min(width, height) * 0.3}px serif`;
+  pCtx.textAlign = 'center';
+  pCtx.textBaseline = 'middle';
+  pCtx.fillText('♥', width/2, height/2);
+  
+  return placeholderCanvas;
+}
+
+// Resize and draw collage onto buffer
+function resizeAndDrawCollage() {
+  const cols = 5; // 5 columns * 4 rows = 20 images
+  const rows = 4;
+  
   const maxWidth = window.innerWidth * 0.9;
   const maxHeight = window.innerHeight * 0.9;
-  scale = Math.min(maxWidth / img.width, maxHeight / img.height);
-  w = img.width * scale;
-  h = img.height * scale;
+
+  // Calculate cell size to fit screen
+  const cellSize = Math.min(maxWidth / cols, maxHeight / rows);
+  w = cellSize * cols;
+  h = cellSize * rows;
+  
   canvas.width = w;
   canvas.height = h;
+  bufferCanvas.width = w;
+  bufferCanvas.height = h;
+
+  // Draw all images into buffer grid
+  bufferCtx.clearRect(0, 0, w, h);
+  let i = 0;
+  for(let r = 0; r < rows; r++){
+    for(let c = 0; c < cols; c++){
+      const x = c * cellSize;
+      const y = r * cellSize;
+      
+      if(images[i]) {
+        bufferCtx.drawImage(images[i], x, y, cellSize, cellSize);
+      } else {
+        // Use placeholder for missing images
+        const placeholder = createPlaceholder(cellSize, cellSize);
+        bufferCtx.drawImage(placeholder, x, y);
+      }
+      i++;
+    }
+  }
 }
-img.onload = () => {
-  resizeCanvas();
-  createFadeMask();
-  drawMask(-9999, -9999);
-};
 
-window.addEventListener('resize', () => {
-  resizeCanvas();
-  createFadeMask();
-  drawMask(-9999, -9999);
-});
-
-// Create circular fade mask
 function createFadeMask() {
   fadeMask = document.createElement('canvas');
   fadeMask.width = radius * 2;
@@ -126,39 +293,143 @@ function createFadeMask() {
   mctx.fill();
 }
 
-// Draw image with reveal
 function drawMask(x, y) {
-  ctx.clearRect(0,0,w,h);
+  if (!isInitialized) return;
+  
+  ctx.clearRect(0, 0, w, h);
   ctx.fillStyle = 'black';
-  ctx.fillRect(0,0,w,h);
-  if (x>0 && y>0){
+  ctx.fillRect(0, 0, w, h);
+  
+  if (x > 0 && y > 0 && x < w && y < h) {
     ctx.save();
-    ctx.globalCompositeOperation='destination-out';
-    ctx.drawImage(fadeMask,x-radius,y-radius);
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.drawImage(fadeMask, x - radius, y - radius);
     ctx.restore();
-    ctx.globalCompositeOperation='destination-over';
-    ctx.drawImage(img,0,0,w,h);
-    ctx.globalCompositeOperation='source-over';
+    ctx.globalCompositeOperation = 'destination-over';
+    ctx.drawImage(bufferCanvas, 0, 0);
+    ctx.globalCompositeOperation = 'source-over';
   }
 }
 
-function updatePosition(pageX,pageY){
-  glow.style.left = `${pageX}px`;
-  glow.style.top = `${pageY}px`;
-  const rect = canvas.getBoundingClientRect();
-  const localX = pageX - rect.left;
-  const localY = pageY - rect.top;
-  drawMask(localX, localY);
+// Throttled position update for better performance
+function updatePosition(pageX, pageY) {
+  if (animationId) return;
+  
+  animationId = requestAnimationFrame(() => {
+    glow.style.left = `${pageX}px`;
+    glow.style.top = `${pageY}px`;
+    
+    const rect = canvas.getBoundingClientRect();
+    const localX = pageX - rect.left;
+    const localY = pageY - rect.top;
+    drawMask(localX, localY);
+    
+    animationId = null;
+  });
 }
 
-// Touch events
-document.addEventListener('touchstart', e => { if(e.touches.length>0){glow.style.opacity='1';updatePosition(e.touches[0].clientX,e.touches[0].clientY);}},{passive:true});
-document.addEventListener('touchmove', e => { if(e.touches.length>0){updatePosition(e.touches[0].clientX,e.touches[0].clientY);}},{passive:true});
-document.addEventListener('touchend', e => { glow.style.opacity='0'; drawMask(-9999,-9999);},{passive:true});
+function hideLoadingAndShowInstructions() {
+  loadingIndicator.classList.add('hidden');
+  
+  // Show instructions after a brief delay
+  setTimeout(() => {
+    instructionText.classList.add('visible');
+  }, 500);
+  
+  // Show error message if there were failed loads
+  if (errorCount > 0) {
+    setTimeout(() => {
+      errorMessage.classList.add('visible');
+    }, 1000);
+  }
+}
+
+function initializeCanvas() {
+  resizeAndDrawCollage();
+  createFadeMask();
+  drawMask(-9999, -9999);
+  isInitialized = true;
+  hideLoadingAndShowInstructions();
+}
+
+// Touch events with improved handling
+document.addEventListener('touchstart', e => {
+  e.preventDefault();
+  if (e.touches.length > 0) {
+    glow.style.opacity = '1';
+    updatePosition(e.touches[0].clientX, e.touches[0].clientY);
+  }
+}, { passive: false });
+
+document.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (e.touches.length > 0) {
+    updatePosition(e.touches[0].clientX, e.touches[0].clientY);
+  }
+}, { passive: false });
+
+document.addEventListener('touchend', e => {
+  glow.style.opacity = '0';
+  drawMask(-9999, -9999);
+}, { passive: true });
 
 // Mouse events
-document.addEventListener('mousemove', e => { glow.style.opacity='1'; updatePosition(e.clientX,e.clientY); });
-document.addEventListener('mouseleave',()=>{ glow.style.opacity='0'; drawMask(-9999,-9999); });
+document.addEventListener('mousemove', e => {
+  glow.style.opacity = '1';
+  updatePosition(e.clientX, e.clientY);
+});
+
+document.addEventListener('mouseleave', () => {
+  glow.style.opacity = '0';
+  drawMask(-9999, -9999);
+});
+
+// Load all images with comprehensive error handling
+imageSources.forEach((src, index) => {
+  const img = new Image();
+  
+  img.onload = () => {
+    images[index] = img;
+    loadedCount++;
+    
+    if (loadedCount + errorCount === imageSources.length) {
+      initializeCanvas();
+    }
+  };
+  
+  img.onerror = () => {
+    console.warn(`Failed to load image: ${src}`);
+    errorCount++;
+    
+    if (loadedCount + errorCount === imageSources.length) {
+      initializeCanvas();
+    }
+  };
+  
+  // Set source after event handlers to avoid race conditions
+  img.src = src;
+});
+
+// Handle window resize with debouncing
+let resizeTimeout;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(() => {
+    if (isInitialized) {
+      resizeAndDrawCollage();
+      createFadeMask();
+      drawMask(-9999, -9999);
+    }
+  }, 250);
+});
+
+// Fallback initialization in case no images load
+setTimeout(() => {
+  if (!isInitialized) {
+    console.warn('Initializing with placeholder images due to loading timeout');
+    initializeCanvas();
+  }
+}, 10000); // 10 second timeout
 </script>
 </body>
 </html>
