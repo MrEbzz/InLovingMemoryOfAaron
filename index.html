@@ -4,6 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 <title>In Memory Of Aaron Anthony Ebanks</title>
+<link rel="icon" type="image/png" href="icons8-bmw-100.png">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
 <style>
 html, body {
@@ -15,10 +16,10 @@ html, body {
 }
 body {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 2vw;
   box-sizing: border-box;
   position: relative;
 }
@@ -48,8 +49,8 @@ h1 {
 /* Glow element */
 .glow {
   position: fixed;
-  width: 180px;
-  height: 180px;
+  width: 200px;
+  height: 200px;
   background: radial-gradient(circle, rgba(255,105,180,0.8) 0%, rgba(255,105,180,0) 70%);
   border-radius: 50%;
   pointer-events: none;
@@ -65,8 +66,7 @@ h1 {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  max-width: 800px;
-  width: 100%;
+  width: auto;
   height: auto;
   z-index: 1;
   pointer-events: none;
@@ -74,7 +74,6 @@ h1 {
 </style>
 </head>
 <body>
-// we all love and miss you so much. 
 <h1>
   In Memory Of<br>
   <span style="white-space: nowrap;">Aaron Anthony Ebanks</span>
@@ -89,15 +88,15 @@ const canvas = document.getElementById('revealCanvas');
 const ctx = canvas.getContext('2d');
 const img = new Image();
 img.src = 'Image2.png';
-const radius = 90;
+let radius = 120; // reveal & glow radius
 
 let w, h, scale;
-let fadeMask; // will store alpha mask
+let fadeMask;
 
-// Resizes canvas to fit image nicely
+// Resize canvas to match image size
 function resizeCanvas() {
-  const maxWidth = 800;
-  scale = Math.min(window.innerWidth, maxWidth) / img.width;
+  const maxWidth = window.innerWidth * 0.9; // allow larger image
+  scale = Math.min(maxWidth / img.width, window.innerHeight * 0.9 / img.height);
   w = img.width * scale;
   h = img.height * scale;
   canvas.width = w;
@@ -109,12 +108,12 @@ img.onload = () => {
   window.addEventListener('resize', () => {
     resizeCanvas();
     createFadeMask();
-    drawMask(-9999, -9999); // reset hidden
+    drawMask(-9999, -9999);
   });
-  drawMask(-9999, -9999); // initially hidden
+  drawMask(-9999, -9999);
 };
 
-// Pre-render a soft circular fade as an offscreen canvas
+// Pre-render a soft circular fade mask
 function createFadeMask() {
   fadeMask = document.createElement('canvas');
   fadeMask.width = radius * 2;
@@ -129,19 +128,16 @@ function createFadeMask() {
   mctx.fill();
 }
 
-// Draw the mask at given local coordinates
+// Draw the masked image at given local coordinates
 function drawMask(x, y) {
   ctx.clearRect(0, 0, w, h);
-  // Start by filling black overlay
   ctx.fillStyle = 'black';
   ctx.fillRect(0, 0, w, h);
   if (x > 0 && y > 0) {
-    // Punch soft hole using fade mask
     ctx.save();
     ctx.globalCompositeOperation = 'destination-out';
     ctx.drawImage(fadeMask, x - radius, y - radius);
     ctx.restore();
-    // Redraw image underneath the cleared part
     ctx.globalCompositeOperation = 'destination-over';
     ctx.drawImage(img, 0, 0, w, h);
     ctx.globalCompositeOperation = 'source-over';
@@ -176,7 +172,7 @@ document.addEventListener('touchend', e => {
   drawMask(-9999, -9999);
 }, { passive: true });
 
-// Mouse support for desktop testing
+// Mouse support
 document.addEventListener('mousemove', e => {
   glow.style.opacity = '1';
   updatePosition(e.clientX, e.clientY);
