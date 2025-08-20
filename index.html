@@ -62,25 +62,32 @@ h1 {
   opacity: 0;
 }
 
-/* Hidden image as div background with circular mask */
-.hidden-image {
+/* Hidden image container */
+.hidden-image-container {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   width: 100%;
   max-width: 800px;
-  height: auto;
   pointer-events: none;
-  background: url('Image1.jpg') center/contain no-repeat; /* your image */
   z-index: 1;
+}
 
-  -webkit-mask-image: radial-gradient(circle 90px at 0 0, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
+/* Actual image with circular mask */
+.hidden-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  -webkit-mask-image: radial-gradient(circle 90px at -9999px -9999px, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
   -webkit-mask-repeat: no-repeat;
   -webkit-mask-position: -9999px -9999px;
-  mask-image: radial-gradient(circle 90px at 0 0, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
+  -webkit-mask-composite: destination-in;
+
+  mask-image: radial-gradient(circle 90px at -9999px -9999px, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
   mask-repeat: no-repeat;
   mask-position: -9999px -9999px;
+  mask-composite: intersect;
 }
 </style>
 </head>
@@ -90,7 +97,10 @@ h1 {
   <span style="white-space: nowrap;">Aaron Anthony Ebanks</span>
 </h1>
 
-<div class="hidden-image"></div>
+<div class="hidden-image-container">
+  <img src="Image1.jpg" class="hidden-image" />
+</div>
+
 <div class="glow"></div>
 
 <script>
@@ -98,10 +108,8 @@ const glow = document.querySelector('.glow');
 const hiddenImg = document.querySelector('.hidden-image');
 
 function moveGlow(x, y) {
-  // move glow
   glow.style.transform = `translate(${x}px, ${y}px)`;
-  // update mask to match glow position exactly with soft edges
-  const radius = 90; // glow radius
+  const radius = 90;
   const gradient = `radial-gradient(circle ${radius}px at ${x}px ${y}px, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)`;
   hiddenImg.style.webkitMaskImage = gradient;
   hiddenImg.style.maskImage = gradient;
@@ -123,8 +131,9 @@ document.addEventListener('touchmove', e => {
 document.addEventListener('touchend', e => {
   if (e.touches.length === 0) { 
     glow.style.opacity = '0';
-    hiddenImg.style.webkitMaskImage = 'radial-gradient(circle 90px at -9999px -9999px, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)';
-    hiddenImg.style.maskImage = 'radial-gradient(circle 90px at -9999px -9999px, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)';
+    const offscreen = 'radial-gradient(circle 90px at -9999px -9999px, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)';
+    hiddenImg.style.webkitMaskImage = offscreen;
+    hiddenImg.style.maskImage = offscreen;
   }
 }, { passive: true });
 </script>
