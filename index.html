@@ -52,7 +52,7 @@ h1 {
   left: 0;
   width: 180px;
   height: 180px;
-  margin: -90px 0 0 -90px; /* centers glow */
+  margin: -90px 0 0 -90px;
   background: radial-gradient(circle, rgba(255,105,180,0.8) 0%, rgba(255,105,180,0) 70%);
   border-radius: 50%;
   pointer-events: none;
@@ -72,22 +72,16 @@ h1 {
   max-width: 800px;
   pointer-events: none;
   z-index: 1;
+  overflow: hidden;
 }
 
-/* Actual image with circular mask */
+/* Actual image with clip-path */
 .hidden-image {
   width: 100%;
   height: auto;
   display: block;
-  -webkit-mask-image: radial-gradient(circle 90px at -9999px -9999px, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
-  -webkit-mask-repeat: no-repeat;
-  -webkit-mask-position: -9999px -9999px;
-  -webkit-mask-composite: destination-in;
-
-  mask-image: radial-gradient(circle 90px at -9999px -9999px, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
-  mask-repeat: no-repeat;
-  mask-position: -9999px -9999px;
-  mask-composite: intersect;
+  clip-path: circle(0px at 0 0); /* start hidden */
+  transition: clip-path 0.05s;
 }
 </style>
 </head>
@@ -109,10 +103,8 @@ const hiddenImg = document.querySelector('.hidden-image');
 
 function moveGlow(x, y) {
   glow.style.transform = `translate(${x}px, ${y}px)`;
-  const radius = 90;
-  const gradient = `radial-gradient(circle ${radius}px at ${x}px ${y}px, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)`;
-  hiddenImg.style.webkitMaskImage = gradient;
-  hiddenImg.style.maskImage = gradient;
+  const radius = 90; // glow radius
+  hiddenImg.style.clipPath = `circle(${radius}px at ${x}px ${y}px)`;
 }
 
 document.addEventListener('touchstart', e => {
@@ -131,9 +123,7 @@ document.addEventListener('touchmove', e => {
 document.addEventListener('touchend', e => {
   if (e.touches.length === 0) { 
     glow.style.opacity = '0';
-    const offscreen = 'radial-gradient(circle 90px at -9999px -9999px, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)';
-    hiddenImg.style.webkitMaskImage = offscreen;
-    hiddenImg.style.maskImage = offscreen;
+    hiddenImg.style.clipPath = `circle(0px at 0 0)`; // hide again
   }
 }, { passive: true });
 </script>
