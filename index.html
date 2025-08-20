@@ -8,7 +8,7 @@
 <!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
 
-<!-- Favicon for all devices and browsers -->
+<!-- Favicon -->
 <link rel="icon" href="icons8-bmw-100.png" type="image/png">
 <link rel="shortcut icon" href="icons8-bmw-100.png" type="image/png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons8-bmw-100.png">
@@ -71,8 +71,8 @@ h1 {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  max-width: 800px;
-  width: 100%;
+  max-width: none; /* allow larger image */
+  width: auto;
   height: auto;
   z-index: 1;
   pointer-events: none;
@@ -97,18 +97,19 @@ img.src = 'Image1.png';
 
 let w, h, scale;
 let fadeMask, imageMask;
-let radius = 90; // will recalc dynamically
+let radius = 150; // increased radius
+let glowScale = 1.5; // larger glow
 
 // Recalculate sizes dynamically
 function calcRadius() {
-  radius = Math.max(70, Math.min(140, window.innerWidth * 0.1));
-  glow.style.width = radius * 2 + 'px';
-  glow.style.height = radius * 2 + 'px';
+  radius = Math.max(120, Math.min(200, window.innerWidth * 0.15)); // bigger reveal radius
+  glow.style.width = radius * 2 * glowScale + 'px';
+  glow.style.height = radius * 2 * glowScale + 'px';
 }
 
 function resizeCanvas() {
-  const maxWidth = 800;
-  scale = Math.min(window.innerWidth, maxWidth) / img.width;
+  // scale image to fit window more fully
+  scale = Math.min(window.innerWidth / img.width, window.innerHeight / img.height) * 1.2; // increase size 20%
   w = img.width * scale;
   h = img.height * scale;
   canvas.width = w;
@@ -167,17 +168,14 @@ function drawMask(x, y) {
   ctx.fillRect(0, 0, w, h);
 
   if (x > 0 && y > 0) {
-    // Punch a hole in black where the glow is
     ctx.save();
     ctx.globalCompositeOperation = 'destination-out';
     ctx.drawImage(fadeMask, x - radius, y - radius);
     ctx.restore();
 
-    // Draw image behind hole
     ctx.globalCompositeOperation = 'destination-over';
     ctx.drawImage(img, 0, 0, w, h);
 
-    // Feather the whole image edges
     ctx.globalCompositeOperation = 'destination-in';
     ctx.drawImage(imageMask, 0, 0);
     ctx.globalCompositeOperation = 'source-over';
