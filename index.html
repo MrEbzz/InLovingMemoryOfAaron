@@ -13,6 +13,11 @@ html, body {
   overflow: hidden;
   background: #000;
   font-family: 'Playfair Display', serif;
+  -webkit-user-select: none; /* prevent highlighting */
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  touch-action: manipulation; /* prevent pinch zoom */
 }
 body {
   display: flex;
@@ -119,13 +124,18 @@ h1 {
   position: absolute;
   font-size: 1.5rem;
   color: #ff69b4;
-  animation: floatUp 4s linear forwards;
+  opacity: 0;
+  animation: floatUp 4s forwards, fadeIn 0.3s forwards;
   text-align: center;
   white-space: nowrap;
 }
 @keyframes floatUp {
-  0% { transform: translateY(0); opacity:1; }
-  100% { transform: translateY(-300px); opacity:0; }
+  0% { transform: translate(0,0); opacity:1; }
+  100% { transform: translate(var(--driftX,0px), -300px); opacity:0; }
+}
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
 }
 </style>
 </head>
@@ -197,19 +207,13 @@ function updatePos(px,py){
 img.onload=()=>{ resizeCanvas(); createFadeMask(); drawMask(-9999,-9999); };
 window.addEventListener('resize',()=>{ resizeCanvas(); createFadeMask(); drawMask(-9999,-9999); });
 
-/* Touch/Mouse only glow while active */
-let isTouching = false;
-document.addEventListener('touchstart',e=>{
-  isTouching=true;
-  glow.style.opacity='1';
-  updatePos(e.touches[0].clientX,e.touches[0].clientY);
-},{passive:true});
-document.addEventListener('touchmove',e=>{ if(isTouching) updatePos(e.touches[0].clientX,e.touches[0].clientY); },{passive:true});
-document.addEventListener('touchend',()=>{isTouching=false; glow.style.opacity='0'; drawMask(-9999,-9999);},{passive:true});
-
-document.addEventListener('mousedown',e=>{isTouching=true; glow.style.opacity='1'; updatePos(e.clientX,e.clientY);});
-document.addEventListener('mousemove',e=>{if(isTouching) updatePos(e.clientX,e.clientY);});
-document.addEventListener('mouseup',()=>{isTouching=false; glow.style.opacity='0'; drawMask(-9999,-9999);});
+document.addEventListener('touchstart',e=>{glow.style.opacity='1';updatePos(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});
+document.addEventListener('touchmove',e=>{updatePos(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});
+document.addEventListener('touchend',()=>{glow.style.opacity='0';drawMask(-9999,-9999);},{passive:true});
+document.addEventListener('mousedown',e=>{glow.style.opacity='1';updatePos(e.clientX,e.clientY);});
+document.addEventListener('mousemove',e=>{if(e.buttons) updatePos(e.clientX,e.clientY);});
+document.addEventListener('mouseup',()=>{glow.style.opacity='0';drawMask(-9999,-9999);});
+document.addEventListener('mouseleave',()=>{glow.style.opacity='0';drawMask(-9999,-9999);});
 
 /* === PRAYER FEATURE === */
 const prayerBtnEl = document.getElementById('prayerBtn');
@@ -220,13 +224,17 @@ function createPrayer(text){
   const prayerEl = document.createElement('div');
   prayerEl.className = 'prayer';
   prayerEl.innerText = text;
-  
+
   const rect = document.querySelector('h1').getBoundingClientRect();
-  // Shift more to the left and randomize
-  const leftOffset = Math.random() * 80 - 40; // range -40 to +40
-  prayerEl.style.left = (rect.left + rect.width/2 - 60 + leftOffset) + 'px';
-  prayerEl.style.top = (rect.top - 30) + 'px';
-  
+  let left = rect.left + rect.width/2 - 50 + Math.random()*100;
+  let top = rect.top - 30;
+
+  // Clamp within viewport
+  const driftX = (Math.random()*60 - 30) + 'px'; // drift left/right
+  prayerEl.style.setProperty('--driftX', driftX);
+  prayerEl.style.left = `${Math.min(window.innerWidth - 50, Math.max(10,left))}px`;
+  prayerEl.style.top = `${Math.max(10, top)}px`;
+
   prayerContainerEl.appendChild(prayerEl);
   setTimeout(()=>prayerEl.remove(), 4000);
 }
@@ -234,7 +242,6 @@ function createPrayer(text){
 prayerBtnEl.addEventListener('click', ()=>{
   let text = prayerInputEl.value.trim();
   if(!text){
-    // Random symbol if empty
     const symbols = ['🙏','🕊️','💖'];
     text = symbols[Math.floor(Math.random()*symbols.length)];
   } else {
@@ -251,6 +258,9 @@ document.addEventListener('touchend',e=>{
   if(now-lastTouch<=300)e.preventDefault();
   lastTouch=now;
 },{passive:false});
+
+// Prevent zooming around buttons
+document.addEventListener('gesturestart', e=> e.preventDefault());
 </script>
 </body>
 </html>
