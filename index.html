@@ -74,62 +74,37 @@ h1 {
   max-height: 40%;
 }
 
-/* Prayer button */
-#prayerBtn {
-  padding: 0.4rem 0.9rem;
-  font-size: clamp(0.9rem, 2.8vw, 1rem);
-  border: none;
-  border-radius: 6px;
-  background: #ff69b4;
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
+/* Prayer form inline */
+#prayerForm {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   z-index: 4;
   margin-top: 0.5rem;
 }
-#prayerBtn:active {
-  transform: scale(0.97);
-}
-
-/* Prayer message box */
-#prayerBox {
-  display: none;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+#prayerInput {
+  width: clamp(120px, 40vw, 220px);
+  max-width: 220px;
+  padding: 0.3rem;
+  font-size: 0.9rem;
+  border-radius: 5px;
+  border: 1px solid #ff69b4;
   background: #111;
-  padding: 1rem;
-  border: 2px solid #ff69b4;
-  border-radius: 10px;
-  z-index: 5;
-  width: 80%;
-  max-width: 300px;
-  box-shadow: 0 0 15px rgba(255,105,180,0.5);
-}
-#prayerBox textarea {
-  width: 100%;
-  height: 80px;
-  resize: none;
-  border: none;
-  padding: 0.5rem;
-  font-size: 0.9rem;
-  font-family: inherit;
-  background: #222;
   color: white;
-  border-radius: 6px;
-  margin-bottom: 0.5rem;
+  font-family: inherit;
 }
-#prayerBox button {
-  padding: 0.4rem 0.8rem;
-  font-size: 0.9rem;
-  background: #ff69b4;
+#prayerBtn {
+  padding: 0.35rem 0.7rem;
+  font-size: clamp(0.8rem, 2.5vw, 1rem);
   border: none;
+  border-radius: 6px;
+  background: #ff69b4;
   color: white;
   font-weight: 600;
-  border-radius: 5px;
   cursor: pointer;
 }
+#prayerBtn:active { transform: scale(0.96); }
 
 /* Floating prayers container */
 #prayerContainer {
@@ -146,7 +121,7 @@ h1 {
   color: #ff69b4;
   animation: floatUp 4s linear forwards;
   text-align: center;
-  white-space: pre-wrap;
+  white-space: nowrap;
 }
 @keyframes floatUp {
   0% { transform: translateY(0); opacity:1; }
@@ -164,13 +139,10 @@ h1 {
 <!-- Title -->
 <h1>In Memory Of<br><span style="white-space: nowrap;">Aaron Anthony Ebanks</span></h1>
 
-<!-- Prayer Button -->
-<button id="prayerBtn">Send a Prayer</button>
-
-<!-- Prayer Box -->
-<div id="prayerBox">
-  <textarea placeholder="Write your prayer..."></textarea>
-  <button id="sendPrayer">Send</button>
+<!-- Prayer form inline -->
+<div id="prayerForm">
+  <input id="prayerInput" maxlength="50" placeholder="Write a prayer...">
+  <button id="prayerBtn">Send a Prayer</button>
 </div>
 
 <!-- Floating Prayers -->
@@ -234,28 +206,20 @@ document.addEventListener('mouseleave',()=>{glow.style.opacity='0';drawMask(-999
 
 /* === PRAYER FEATURE === */
 const prayerBtn=document.getElementById('prayerBtn');
-const prayerBox=document.getElementById('prayerBox');
-const sendPrayer=document.getElementById('sendPrayer');
-const textarea=prayerBox.querySelector('textarea');
+const prayerInput=document.getElementById('prayerInput');
 const prayerContainer=document.getElementById('prayerContainer');
 
-prayerBtn.addEventListener('click',()=>{ 
-  prayerBox.style.display='block'; 
-  textarea.focus();
-});
-
-sendPrayer.addEventListener('click',()=>{
-  const text=textarea.value.trim();
+prayerBtn.addEventListener('click',()=>{
+  const text=prayerInput.value.trim();
   if(!text)return;
   const prayer=document.createElement('div');
   prayer.className='prayer';
-  prayer.innerHTML='🙏<br>'+text;
-  prayer.style.left=(window.innerWidth/2-40+Math.random()*80)+'px';
+  prayer.innerHTML='🙏 ' + text;
+  prayer.style.left=(window.innerWidth/2-50+Math.random()*100)+'px';
   prayer.style.bottom='20px';
   prayerContainer.appendChild(prayer);
   setTimeout(()=>prayer.remove(),4000);
-  prayerBox.style.display='none'; 
-  textarea.value='';
+  prayerInput.value='';
 });
 
 // Prevent double-tap zoom
