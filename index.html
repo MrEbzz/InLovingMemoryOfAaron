@@ -18,8 +18,9 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   text-align: center;
+  padding-top: 20px;
 }
 
 h1 {
@@ -35,7 +36,7 @@ h1 {
     0 -1.5px 0 #000,
     0 6px 18px rgba(255,105,180,0.5);
   animation: heartbeat 2s infinite;
-  margin-bottom: 20px;
+  margin: 15px 0;
 }
 
 @keyframes heartbeat {
@@ -45,14 +46,39 @@ h1 {
   75% { text-shadow: 2.5px 0 0 #000, -2.5px 0 0 #000, 0 2.5px 0 #000, 0 -2.5px 0 #000, 0 12px 36px rgba(255,105,180,1);}
 }
 
+/* Image reveal area */
+#imageWrapper {
+  position: relative;
+  display: inline-block;
+  max-width: 80%;
+  margin-bottom: 10px;
+}
+#revealCanvas {
+  display: block;
+  max-width: 100%;
+}
+.glow {
+  position: fixed;
+  width: 160px;
+  height: 160px;
+  background: radial-gradient(circle, rgba(255,105,180,0.8) 0%, rgba(255,105,180,0) 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  transition: opacity 0.15s ease;
+  opacity: 0;
+}
+
+/* Prayer button */
 button {
   font-family: 'Playfair Display', serif;
-  font-size: 0.9rem;
-  padding: 8px 18px;
+  font-size: 0.8rem;
+  padding: 6px 14px;
   color: #fff;
   background: #ff69b4;
   border: none;
-  border-radius: 25px;
+  border-radius: 20px;
   cursor: pointer;
   box-shadow: 0 4px 10px rgba(0,0,0,0.4);
   transition: transform 0.2s ease, background 0.3s ease;
@@ -63,16 +89,17 @@ button:hover {
   transform: scale(1.05);
 }
 
+/* Prayer input popup */
 .message-box {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(0,0,0,0.85);
+  background: rgba(0,0,0,0.9);
   border: 1px solid #ff69b4;
   border-radius: 10px;
   padding: 15px;
-  z-index: 10;
+  z-index: 20;
   text-align: center;
 }
 .message-box input {
@@ -98,18 +125,22 @@ button:hover {
   font-family: 'Playfair Display', serif;
   font-size: 1rem;
   color: #ffb6c1;
-  animation: floatUp 3s ease-out forwards;
+  animation: floatUp 4s ease-out forwards;
   pointer-events: none;
   white-space: nowrap;
 }
 
 @keyframes floatUp {
   0% { transform: translate(0, 0) scale(1); opacity: 1; }
-  100% { transform: translate(var(--drift-x), -250px) scale(1.1); opacity: 0; }
+  100% { transform: translate(var(--drift-x), -400px) scale(1.2); opacity: 0; }
 }
 </style>
 </head>
 <body>
+
+<div id="imageWrapper">
+  <canvas id="revealCanvas"></canvas>
+</div>
 
 <h1>
   In Memory Of<br>
@@ -117,12 +148,83 @@ button:hover {
 </h1>
 
 <button id="prayerButton">Send a Prayer</button>
+<div class="glow"></div>
 
 <script>
-const btn = document.getElementById('prayerButton');
+// ---------- IMAGE REVEAL ----------
+const glow = document.querySelector('.glow');
+const canvas = document.getElementById('revealCanvas');
+const ctx = canvas.getContext('2d');
+const img = new Image();
+img.src = 'Image1.png';  // your single image
 
+let radius = 100, w, h, scale, fadeMask;
+
+function resizeCanvas() {
+  const maxWidth = window.innerWidth * 0.8;
+  const maxHeight = window.innerHeight * 0.4;
+  scale = Math.min(maxWidth / img.width, maxHeight / img.height);
+  w = img.width * scale;
+  h = img.height * scale;
+  canvas.width = w;
+  canvas.height = h;
+}
+img.onload = () => {
+  resizeCanvas();
+  createFadeMask();
+  drawMask(-9999, -9999);
+};
+window.addEventListener('resize', () => {
+  resizeCanvas();
+  createFadeMask();
+  drawMask(-9999, -9999);
+});
+
+function createFadeMask() {
+  fadeMask = document.createElement('canvas');
+  fadeMask.width = radius * 2;
+  fadeMask.height = radius * 2;
+  const mctx = fadeMask.getContext('2d');
+  const grad = mctx.createRadialGradient(radius, radius, radius*0.6, radius, radius, radius);
+  grad.addColorStop(0, 'rgba(0,0,0,1)');
+  grad.addColorStop(1, 'rgba(0,0,0,0)');
+  mctx.fillStyle = grad;
+  mctx.beginPath();
+  mctx.arc(radius, radius, radius, 0, Math.PI*2);
+  mctx.fill();
+}
+function drawMask(x, y) {
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle = 'black';
+  ctx.fillRect(0,0,w,h);
+  if (x>0 && y>0){
+    ctx.save();
+    ctx.globalCompositeOperation='destination-out';
+    ctx.drawImage(fadeMask,x-radius,y-radius);
+    ctx.restore();
+    ctx.globalCompositeOperation='destination-over';
+    ctx.drawImage(img,0,0,w,h);
+    ctx.globalCompositeOperation='source-over';
+  }
+}
+function updatePosition(pageX,pageY){
+  glow.style.left = `${pageX}px`;
+  glow.style.top = `${pageY}px`;
+  const rect = canvas.getBoundingClientRect();
+  const localX = pageX - rect.left;
+  const localY = pageY - rect.top;
+  drawMask(localX, localY);
+}
+// touch + mouse events for reveal
+canvas.addEventListener('touchstart', e => { if(e.touches.length>0){glow.style.opacity='1';updatePosition(e.touches[0].clientX,e.touches[0].clientY);}},{passive:true});
+canvas.addEventListener('touchmove', e => { if(e.touches.length>0){updatePosition(e.touches[0].clientX,e.touches[0].clientY);}},{passive:true});
+canvas.addEventListener('touchend', () => { glow.style.opacity='0'; drawMask(-9999,-9999);},{passive:true});
+canvas.addEventListener('mousemove', e => { glow.style.opacity='1'; updatePosition(e.clientX,e.clientY); });
+canvas.addEventListener('mouseleave',()=>{ glow.style.opacity='0'; drawMask(-9999,-9999); });
+
+// ---------- PRAYER FLOAT ----------
+const btn = document.getElementById('prayerButton');
 btn.addEventListener('click', () => {
-  // Create popup input box
   const box = document.createElement('div');
   box.className = 'message-box';
   box.innerHTML = `
@@ -130,32 +232,23 @@ btn.addEventListener('click', () => {
     <button id="sendPrayer">Send</button>
   `;
   document.body.appendChild(box);
-
   document.getElementById('sendPrayer').addEventListener('click', () => {
     const text = document.getElementById('prayerText').value.trim() || "🙏";
     createPrayer(text);
     box.remove();
   });
 });
-
 function createPrayer(msg) {
   const prayer = document.createElement('div');
   prayer.className = 'prayer';
   prayer.textContent = `🙏 ${msg}`;
-
-  // Start from button position
   const rect = btn.getBoundingClientRect();
   prayer.style.left = `${rect.left + rect.width/2}px`;
   prayer.style.top = `${rect.top}px`;
-
-  // Random slight drift
-  const drift = (Math.random() * 60 - 30).toFixed(0) + 'px';
+  const drift = (Math.random() * 80 - 40).toFixed(0) + 'px';
   prayer.style.setProperty('--drift-x', drift);
-
   document.body.appendChild(prayer);
-
-  // Remove after animation completes
-  setTimeout(() => prayer.remove(), 3000);
+  setTimeout(() => prayer.remove(), 4000);
 }
 </script>
 
