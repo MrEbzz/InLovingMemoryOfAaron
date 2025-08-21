@@ -48,7 +48,7 @@ h1 {
   75% { text-shadow: 2.5px 0 0 #000, -2.5px 0 0 #000, 0 2.5px 0 #000, 0 -2.5px 0 #000, 0 12px 36px rgba(255,105,180,1);}
 }
 
-/* Glow element when pressing image */
+/* Glow element for hold image */
 .glow {
   position: fixed;
   width: 150px;
@@ -103,15 +103,16 @@ h1 {
   color: white;
   font-weight: 600;
   cursor: pointer;
+  transition: transform 0.1s ease;
 }
-#prayerBtn:active { transform: scale(0.96); }
+#prayerBtn:active { transform: scale(0.95); }
 
 /* Floating prayers container */
 #prayerContainer {
   position: absolute;
   left: 0; top: 0;
   width: 100%; height: 100%;
-  overflow: hidden;
+  overflow: visible;
   pointer-events: none;
   z-index: 3;
 }
@@ -119,14 +120,16 @@ h1 {
   position: absolute;
   font-size: 1.5rem;
   color: #ff69b4;
-  animation: floatUp 4s linear forwards;
   text-align: center;
   white-space: nowrap;
 }
-@keyframes floatUp {
-  0% { transform: translateY(0); opacity:1; }
-  90% { opacity:1; }
-  100% { transform: translateY(-300px); opacity:0; }
+
+/* Sparkle inside prayers */
+.sparkle {
+  position: absolute;
+  pointer-events: none;
+  font-size: 10px;
+  color: #ff69b4;
 }
 </style>
 </head>
@@ -150,32 +153,34 @@ h1 {
 
 <script>
 /* === IMAGE REVEAL === */
-const glow = document.querySelector('.glow');
-const canvas = document.getElementById('revealCanvas');
-const ctx = canvas.getContext('2d');
-const img = new Image();
-img.src = 'Image2.png';
-let radius = 100, w, h, scale, fadeMask;
+const glow=document.querySelector('.glow');
+const canvas=document.getElementById('revealCanvas');
+const ctx=canvas.getContext('2d');
+const img=new Image();
+img.src='Image2.png';
+let radius=100,w,h,scale,fadeMask;
 
-function resizeCanvas() {
-  const maxW = window.innerWidth * 0.8;
-  const maxH = window.innerHeight * 0.4;
-  scale = Math.min(maxW / img.width, maxH / img.height);
-  w = img.width * scale;
-  h = img.height * scale;
-  canvas.width = w;
-  canvas.height = h;
+function resizeCanvas(){
+  const maxW=window.innerWidth*0.8;
+  const maxH=window.innerHeight*0.4;
+  scale=Math.min(maxW/img.width,maxH/img.height);
+  w=img.width*scale;
+  h=img.height*scale;
+  canvas.width=w;
+  canvas.height=h;
 }
-function createFadeMask() {
-  fadeMask = document.createElement('canvas');
-  fadeMask.width = radius * 2;
-  fadeMask.height = radius * 2;
-  const mctx = fadeMask.getContext('2d');
-  const grad = mctx.createRadialGradient(radius,radius,radius*0.6,radius,radius,radius);
+function createFadeMask(){
+  fadeMask=document.createElement('canvas');
+  fadeMask.width=radius*2;
+  fadeMask.height=radius*2;
+  const mctx=fadeMask.getContext('2d');
+  const grad=mctx.createRadialGradient(radius,radius,radius*0.6,radius,radius,radius);
   grad.addColorStop(0,'rgba(0,0,0,1)');
   grad.addColorStop(1,'rgba(0,0,0,0)');
-  mctx.fillStyle = grad;
-  mctx.beginPath(); mctx.arc(radius,radius,radius,0,Math.PI*2); mctx.fill();
+  mctx.fillStyle=grad;
+  mctx.beginPath();
+  mctx.arc(radius,radius,radius,0,Math.PI*2);
+  mctx.fill();
 }
 function drawMask(x,y){
   ctx.clearRect(0,0,w,h);
@@ -205,21 +210,69 @@ document.addEventListener('mousemove',e=>{glow.style.opacity='1';updatePos(e.cli
 document.addEventListener('mouseleave',()=>{glow.style.opacity='0';drawMask(-9999,-9999);});
 
 /* === PRAYER FEATURE === */
-const prayerBtn=document.getElementById('prayerBtn');
-const prayerInput=document.getElementById('prayerInput');
-const prayerContainer=document.getElementById('prayerContainer');
+const prayerBtnEl=document.getElementById('prayerBtn');
+const prayerInputEl=document.getElementById('prayerInput');
+const prayerContainerEl=document.getElementById('prayerContainer');
 
-prayerBtn.addEventListener('click',()=>{
-  const text=prayerInput.value.trim();
+function createPrayer(text){
+  const span=document.createElement('div');
+  span.className='prayer';
+  span.textContent='🙏 '+text;
+  const rect=document.querySelector('h1').getBoundingClientRect();
+  const startBottom=window.innerHeight-rect.top+20;
+  span.style.bottom=startBottom+'px';
+  span.style.left=(window.innerWidth/2)+'px';
+  span.style.transform='translateX(-50%)';
+  prayerContainerEl.appendChild(span);
+
+  // Animate floating
+  let angle=Math.random()*Math.PI*2;
+  const swayAmp=30+Math.random()*20;
+  const riseSpeed=1+Math.random();
+  const fadeSpeed=0.003+Math.random()*0.002;
+
+  function animate(){
+    let bottom=parseFloat(span.style.bottom);
+    bottom+=riseSpeed;
+    span.style.bottom=bottom+'px';
+    span.style.left=(window.innerWidth/2+Math.sin(angle)*swayAmp)+'px';
+    angle+=0.02;
+    span.style.opacity-=fadeSpeed;
+
+    if(Math.random()<0.2){
+      const sparkle=document.createElement('span');
+      sparkle.className='sparkle';
+      sparkle.textContent='✨';
+      sparkle.style.bottom='0px';
+      sparkle.style.left=(Math.random()*20-10)+'px';
+      sparkle.style.fontSize=(8+Math.random()*8)+'px';
+      span.appendChild(sparkle);
+
+      const sparkleRise=1+Math.random();
+      const sparkleFade=0.02+Math.random()*0.01;
+      function sparkleAnim(){
+        let b=parseFloat(sparkle.style.bottom);
+        b+=sparkleRise;
+        sparkle.style.bottom=b+'px';
+        sparkle.style.opacity-=sparkleFade;
+        if(sparkle.style.opacity>0)requestAnimationFrame(sparkleAnim);
+        else sparkle.remove();
+      }
+      sparkleAnim();
+    }
+
+    if(span.style.opacity>0) requestAnimationFrame(animate);
+    else span.remove();
+  }
+  span.style.opacity=1;
+  animate();
+}
+
+prayerBtnEl.addEventListener('click',()=>{
+  const text=prayerInputEl.value.trim();
   if(!text)return;
-  const prayer=document.createElement('div');
-  prayer.className='prayer';
-  prayer.innerHTML='🙏 ' + text;
-  prayer.style.left=(window.innerWidth/2-50+Math.random()*100)+'px';
-  prayer.style.bottom='20px';
-  prayerContainer.appendChild(prayer);
-  setTimeout(()=>prayer.remove(),4000);
-  prayerInput.value='';
+  createPrayer(text);
+  prayerInputEl.value='';
 });
 
 // Prevent double-tap zoom
