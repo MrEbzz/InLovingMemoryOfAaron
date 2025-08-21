@@ -125,7 +125,6 @@ h1 {
 }
 @keyframes floatUp {
   0% { transform: translateY(0); opacity:1; }
-  90% { opacity:1; }
   100% { transform: translateY(-300px); opacity:0; }
 }
 </style>
@@ -198,55 +197,59 @@ function updatePos(px,py){
 img.onload=()=>{ resizeCanvas(); createFadeMask(); drawMask(-9999,-9999); };
 window.addEventListener('resize',()=>{ resizeCanvas(); createFadeMask(); drawMask(-9999,-9999); });
 
+/* Touch/Mouse only glow while active */
+let isTouching = false;
 document.addEventListener('touchstart',e=>{
+  isTouching=true;
   glow.style.opacity='1';
   updatePos(e.touches[0].clientX,e.touches[0].clientY);
 },{passive:true});
-document.addEventListener('touchmove',e=>{updatePos(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});
-document.addEventListener('touchend',()=>{glow.style.opacity='0'; drawMask(-9999,-9999);},{passive:true});
-document.addEventListener('mousemove',e=>{glow.style.opacity='1'; updatePos(e.clientX,e.clientY);});
-document.addEventListener('mouseleave',()=>{glow.style.opacity='0'; drawMask(-9999,-9999);});
+document.addEventListener('touchmove',e=>{ if(isTouching) updatePos(e.touches[0].clientX,e.touches[0].clientY); },{passive:true});
+document.addEventListener('touchend',()=>{isTouching=false; glow.style.opacity='0'; drawMask(-9999,-9999);},{passive:true});
+
+document.addEventListener('mousedown',e=>{isTouching=true; glow.style.opacity='1'; updatePos(e.clientX,e.clientY);});
+document.addEventListener('mousemove',e=>{if(isTouching) updatePos(e.clientX,e.clientY);});
+document.addEventListener('mouseup',()=>{isTouching=false; glow.style.opacity='0'; drawMask(-9999,-9999);});
 
 /* === PRAYER FEATURE === */
-const prayerBtn = document.getElementById('prayerBtn');
-const prayerInput = document.getElementById('prayerInput');
+const prayerBtnEl = document.getElementById('prayerBtn');
+const prayerInputEl = document.getElementById('prayerInput');
 const prayerContainerEl = document.getElementById('prayerContainer');
 
-// Prayer symbols for random use
-const prayerSymbols = ['🙏','🕊️','💖','🕯️'];
-
-function createPrayer(text) {
+function createPrayer(text){
   const prayerEl = document.createElement('div');
   prayerEl.className = 'prayer';
-  prayerEl.innerText = text || prayerSymbols[Math.floor(Math.random() * prayerSymbols.length)];
-
+  prayerEl.innerText = text;
+  
   const rect = document.querySelector('h1').getBoundingClientRect();
-  const prayerWidth = prayerEl.offsetWidth || 50;
-  const minX = 10;
-  const maxX = window.innerWidth - prayerWidth - 10;
-
-  let leftPos = rect.left + Math.random() * rect.width;
-  leftPos = Math.max(minX, Math.min(leftPos, maxX));
-
-  prayerEl.style.left = leftPos + 'px';
+  // Shift more to the left and randomize
+  const leftOffset = Math.random() * 80 - 40; // range -40 to +40
+  prayerEl.style.left = (rect.left + rect.width/2 - 60 + leftOffset) + 'px';
   prayerEl.style.top = (rect.top - 30) + 'px';
+  
   prayerContainerEl.appendChild(prayerEl);
-
-  setTimeout(() => prayerEl.remove(), 4000);
+  setTimeout(()=>prayerEl.remove(), 4000);
 }
 
-prayerBtn.addEventListener('click', () => {
-  const text = prayerInput.value.trim();
+prayerBtnEl.addEventListener('click', ()=>{
+  let text = prayerInputEl.value.trim();
+  if(!text){
+    // Random symbol if empty
+    const symbols = ['🙏','🕊️','💖'];
+    text = symbols[Math.floor(Math.random()*symbols.length)];
+  } else {
+    text = '🙏 ' + text;
+  }
   createPrayer(text);
-  prayerInput.value = '';
+  prayerInputEl.value = '';
 });
 
 // Prevent double-tap zoom
-let lastTouch = 0;
-document.addEventListener('touchend', e => {
-  const now = new Date().getTime();
-  if (now - lastTouch <= 300) e.preventDefault();
-  lastTouch = now;
+let lastTouch=0;
+document.addEventListener('touchend',e=>{
+  const now=(new Date()).getTime();
+  if(now-lastTouch<=300)e.preventDefault();
+  lastTouch=now;
 },{passive:false});
 </script>
 </body>
