@@ -14,8 +14,8 @@ html, body {
   background: #000;
   font-family: 'Playfair Display', serif;
   -webkit-user-select: none;
-  -ms-user-select: none;
   user-select: none;
+  touch-action: manipulation;
 }
 body {
   display: flex;
@@ -23,10 +23,10 @@ body {
   align-items: center;
   justify-content: center;
   text-align: center;
-  box-sizing: border-box;
   position: relative;
 }
 
+/* Title styling */
 h1 {
   font-weight: 600;
   line-height: 1.3;
@@ -39,9 +39,9 @@ h1 {
     0 -1.5px 0 #000,
     0 6px 18px rgba(255,105,180,0.5);
   animation: heartbeat 2s infinite;
-  z-index: 2;
-  position: relative;
   margin: 0.5rem 0;
+  position: relative;
+  z-index: 2;
 }
 @keyframes heartbeat {
   0%,100% { text-shadow: 1.5px 0 0 #000, -1.5px 0 0 #000, 0 1.5px 0 #000, 0 -1.5px 0 #000, 0 6px 18px rgba(255,105,180,0.5);}
@@ -50,6 +50,17 @@ h1 {
   75% { text-shadow: 2.5px 0 0 #000, -2.5px 0 0 #000, 0 2.5px 0 #000, 0 -2.5px 0 #000, 0 12px 36px rgba(255,105,180,1);}
 }
 
+/* Reveal Image */
+#revealCanvas {
+  position: absolute;
+  top: calc(50% - 100px); /* slightly above H1 */
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Glow when pressing */
 .glow {
   position: fixed;
   width: 150px;
@@ -63,22 +74,10 @@ h1 {
   opacity: 0;
 }
 
-#revealCanvas {
-  position: absolute;
-  top: calc(50% - 120px);
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1;
-  pointer-events: none;
-  max-width: 90%;
-  max-height: 40%;
-  image-rendering: auto;
-}
-
+/* Prayer form inline */
 #prayerForm {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 0.5rem;
   z-index: 4;
   margin-top: 0.5rem;
@@ -92,7 +91,6 @@ h1 {
   border: 1px solid #ff69b4;
   background: #111;
   color: white;
-  font-family: inherit;
 }
 #prayerBtn {
   padding: 0.35rem 0.7rem;
@@ -106,10 +104,12 @@ h1 {
 }
 #prayerBtn:active { transform: scale(0.96); }
 
+/* Floating prayers */
 #prayerContainer {
   position: absolute;
-  left: 0; top: 0;
-  width: 100%; height: 100%;
+  width: 100%;
+  height: 100%;
+  top:0; left:0;
   overflow: hidden;
   pointer-events: none;
   z-index: 3;
@@ -118,10 +118,8 @@ h1 {
   position: absolute;
   font-size: 1.5rem;
   color: #ff69b4;
-  animation: floatUp 4s linear forwards;
-  text-align: center;
   white-space: nowrap;
-  max-width: 80%;
+  animation: floatUp 4s linear forwards;
 }
 @keyframes floatUp {
   0% { transform: translateY(0); opacity:1; }
@@ -143,52 +141,36 @@ h1 {
 
 <div id="prayerContainer"></div>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js"></script>
-
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyBAj8Gw4kjzjJpADNKIAi3YCJ8w3sRPNcU",
-  authDomain: "az-memorial.firebaseapp.com",
-  projectId: "az-memorial",
-  storageBucket: "az-memorial.firebasestorage.app",
-  messagingSenderId: "225117595419",
-  appId: "1:225117595419:web:7226b11bfd1094689155be",
-  measurementId: "G-EMWVHZ20B6",
-  databaseURL: "https://az-memorial-default-rtdb.firebaseio.com"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
 /* === IMAGE REVEAL === */
 const glow = document.querySelector('.glow');
 const canvas = document.getElementById('revealCanvas');
 const ctx = canvas.getContext('2d');
 const img = new Image();
-img.src = 'Image2.png';
+img.src = 'Image2.png'; // Ensure correct path
 let radius = 100, w, h, scale, fadeMask;
 
-function resizeCanvas() {
-  const maxW = window.innerWidth * 0.8;
-  const maxH = window.innerHeight * 0.4;
-  scale = Math.min(maxW / img.width, maxH / img.height);
-  w = img.width * scale;
-  h = img.height * scale;
+img.onload = () => {
+  w = img.width;
+  h = img.height;
   canvas.width = w;
   canvas.height = h;
-}
-function createFadeMask() {
+  createFadeMask();
+  drawMask(-9999,-9999);
+};
+
+function createFadeMask(){
   fadeMask = document.createElement('canvas');
-  fadeMask.width = radius * 2;
-  fadeMask.height = radius * 2;
+  fadeMask.width = radius*2;
+  fadeMask.height = radius*2;
   const mctx = fadeMask.getContext('2d');
   const grad = mctx.createRadialGradient(radius,radius,radius*0.6,radius,radius,radius);
   grad.addColorStop(0,'rgba(0,0,0,1)');
   grad.addColorStop(1,'rgba(0,0,0,0)');
-  mctx.fillStyle = grad;
+  mctx.fillStyle=grad;
   mctx.beginPath(); mctx.arc(radius,radius,radius,0,Math.PI*2); mctx.fill();
 }
+
 function drawMask(x,y){
   ctx.clearRect(0,0,w,h);
   ctx.fillStyle='black'; ctx.fillRect(0,0,w,h);
@@ -202,61 +184,64 @@ function drawMask(x,y){
     ctx.globalCompositeOperation='source-over';
   }
 }
+
 function updatePos(px,py){
   glow.style.left=`${px}px`; glow.style.top=`${py}px`;
-  const r=canvas.getBoundingClientRect();
-  drawMask(px-r.left,py-r.top);
+  const r = canvas.getBoundingClientRect();
+  drawMask(px-r.left, py-r.top);
 }
-img.onload=()=>{ resizeCanvas(); createFadeMask(); drawMask(-9999,-9999); };
-window.addEventListener('resize',()=>{ resizeCanvas(); createFadeMask(); drawMask(-9999,-9999); });
 
-document.addEventListener('touchstart',e=>{glow.style.opacity='1';updatePos(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});
-document.addEventListener('touchmove',e=>{updatePos(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});
-document.addEventListener('touchend',()=>{glow.style.opacity='0';drawMask(-9999,-9999);},{passive:true});
-document.addEventListener('mousemove',e=>{glow.style.opacity='1';updatePos(e.clientX,e.clientY);});
-document.addEventListener('mouseleave',()=>{glow.style.opacity='0';drawMask(-9999,-9999);});
+/* Touch & mouse events */
+document.addEventListener('touchstart',e=>{
+  glow.style.opacity='1';
+  updatePos(e.touches[0].clientX,e.touches[0].clientY);
+},{passive:true});
+document.addEventListener('touchmove',e=>{
+  updatePos(e.touches[0].clientX,e.touches[0].clientY);
+},{passive:true});
+document.addEventListener('touchend',()=>{glow.style.opacity='0'; drawMask(-9999,-9999);},{passive:true});
+document.addEventListener('mousemove',e=>{
+  if(e.buttons===1){
+    glow.style.opacity='1';
+    updatePos(e.clientX,e.clientY);
+  } else {
+    glow.style.opacity='0';
+    drawMask(-9999,-9999);
+  }
+});
+document.addEventListener('mouseleave',()=>{glow.style.opacity='0'; drawMask(-9999,-9999);});
 
 /* === PRAYER FEATURE === */
-const prayerBtnEl = document.getElementById('prayerBtn');
-const prayerInputEl = document.getElementById('prayerInput');
-const prayerContainerEl = document.getElementById('prayerContainer');
+const prayerBtn = document.getElementById('prayerBtn');
+const prayerInput = document.getElementById('prayerInput');
+const prayerContainer = document.getElementById('prayerContainer');
 
 function createPrayer(text){
-  const prayerEl = document.createElement('div');
-  prayerEl.className = 'prayer';
-  prayerEl.innerText = text;
+  const prayer = document.createElement('div');
+  prayer.className='prayer';
+  prayer.innerText=text;
 
-  const rect = document.querySelector('h1').getBoundingClientRect();
-  const leftOffset = Math.random() * 80 - 40; 
-  prayerEl.style.left = (window.innerWidth/2 + leftOffset - 50) + 'px';
-  prayerEl.style.top = (rect.top - 30) + 'px';
+  const rect=document.querySelector('h1').getBoundingClientRect();
+  const left=Math.min(Math.max(rect.left + rect.width/2 - 50 + Math.random()*100,0), window.innerWidth-200);
+  const top=rect.top - 30;
+  prayer.style.left = left+'px';
+  prayer.style.top = top+'px';
 
-  prayerContainerEl.appendChild(prayerEl);
-  setTimeout(()=>prayerEl.remove(), 4000);
+  prayerContainer.appendChild(prayer);
+  setTimeout(()=>prayer.remove(),4000);
 }
 
-prayerBtnEl.addEventListener('click', ()=>{
-  let text = prayerInputEl.value.trim();
+prayerBtn.addEventListener('click',()=>{
+  let text = prayerInput.value.trim();
   if(!text){
     const symbols = ['🙏','🕊️','💖'];
     text = symbols[Math.floor(Math.random()*symbols.length)];
-  } else {
-    text = '🙏 ' + text;
-  }
-  createPrayer(text); // show immediately
-  firebase.database().ref('prayers').push({ text }); // send to database
-  prayerInputEl.value = '';
+  } else text='🙏 '+text;
+  createPrayer(text);
+  prayerInput.value='';
 });
 
-// Listen for new prayers in realtime
-firebase.database().ref('prayers').limitToLast(10).on('child_added', snapshot=>{
-  const data = snapshot.val();
-  if(data && data.text){
-    createPrayer(data.text);
-  }
-});
-
-// Prevent double-tap zoom and selection
+/* Prevent zoom & text selection */
 let lastTouch=0;
 document.addEventListener('touchend',e=>{
   const now=(new Date()).getTime();
