@@ -13,11 +13,11 @@ html, body {
   overflow: hidden;
   background: #000;
   font-family: 'Playfair Display', serif;
-  -webkit-user-select: none; /* prevent highlighting */
+  -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  touch-action: manipulation; /* prevent pinch zoom */
+  touch-action: manipulation;
 }
 body {
   display: flex;
@@ -25,35 +25,29 @@ body {
   align-items: center;
   justify-content: center;
   text-align: center;
+  position: relative;
   box-sizing: border-box;
-  position: relative;
 }
 
-/* Title styling */
-h1 {
-  font-weight: 600;
-  line-height: 1.3;
-  font-size: clamp(1.8rem, 6vw, 4.5rem);
-  color: #ff69b4;
-  text-shadow:
-    1.5px 0 0 #000,
-    -1.5px 0 0 #000,
-    0 1.5px 0 #000,
-    0 -1.5px 0 #000,
-    0 6px 18px rgba(255,105,180,0.5);
-  animation: heartbeat 2s infinite;
-  z-index: 2;
+/* Image wrapper just above H1 */
+#imageWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 0.5rem;
   position: relative;
-  margin: 0.5rem 0;
-}
-@keyframes heartbeat {
-  0%,100% { text-shadow: 1.5px 0 0 #000, -1.5px 0 0 #000, 0 1.5px 0 #000, 0 -1.5px 0 #000, 0 6px 18px rgba(255,105,180,0.5);}
-  25% { text-shadow: 2px 0 0 #000, -2px 0 0 #000, 0 2px 0 #000, 0 -2px 0 #000, 0 10px 30px rgba(255,105,180,0.9);}
-  50% { text-shadow: 1.5px 0 0 #000, -1.5px 0 0 #000, 0 1.5px 0 #000, 0 -1.5px 0 #000, 0 6px 18px rgba(255,105,180,0.5);}
-  75% { text-shadow: 2.5px 0 0 #000, -2.5px 0 0 #000, 0 2.5px 0 #000, 0 -2.5px 0 #000, 0 12px 36px rgba(255,105,180,1);}
+  z-index: 1;
+  max-width: 90vw;
+  max-height: 40vh;
 }
 
-/* Glow element when pressing image */
+/* Canvas reveal image */
+#revealCanvas {
+  width: 100%;
+  height: auto;
+  max-height: 40vh;
+  pointer-events: none;
+}
 .glow {
   position: fixed;
   width: 150px;
@@ -67,19 +61,30 @@ h1 {
   opacity: 0;
 }
 
-/* Canvas for image reveal */
-#revealCanvas {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1;
-  pointer-events: none;
-  max-width: 90%;
-  max-height: 40%;
+/* Title */
+h1 {
+  font-weight: 600;
+  line-height: 1.3;
+  font-size: clamp(1.8rem, 6vw, 4.5rem);
+  color: #ff69b4;
+  text-shadow:
+    1.5px 0 0 #000,
+    -1.5px 0 0 #000,
+    0 1.5px 0 #000,
+    0 -1.5px 0 #000,
+    0 6px 18px rgba(255,105,180,0.5);
+  animation: heartbeat 2s infinite;
+  z-index: 2;
+  margin: 0.5rem 0;
+}
+@keyframes heartbeat {
+  0%,100% { text-shadow: 1.5px 0 0 #000, -1.5px 0 0 #000, 0 1.5px 0 #000, 0 -1.5px 0 #000, 0 6px 18px rgba(255,105,180,0.5);}
+  25% { text-shadow: 2px 0 0 #000, -2px 0 0 #000, 0 2px 0 #000, 0 -2px 0 #000, 0 10px 30px rgba(255,105,180,0.9);}
+  50% { text-shadow: 1.5px 0 0 #000, -1.5px 0 0 #000, 0 1.5px 0 #000, 0 -1.5px 0 #000, 0 6px 18px rgba(255,105,180,0.5);}
+  75% { text-shadow: 2.5px 0 0 #000, -2.5px 0 0 #000, 0 2.5px 0 #000, 0 -2.5px 0 #000, 0 12px 36px rgba(255,105,180,1);}
 }
 
-/* Prayer form inline */
+/* Prayer input/button */
 #prayerForm {
   display: flex;
   align-items: center;
@@ -90,7 +95,6 @@ h1 {
 }
 #prayerInput {
   width: clamp(120px, 40vw, 220px);
-  max-width: 220px;
   padding: 0.3rem;
   font-size: 0.9rem;
   border-radius: 5px;
@@ -111,7 +115,7 @@ h1 {
 }
 #prayerBtn:active { transform: scale(0.96); }
 
-/* Floating prayers container */
+/* Floating prayers */
 #prayerContainer {
   position: absolute;
   left: 0; top: 0;
@@ -126,7 +130,6 @@ h1 {
   color: #ff69b4;
   opacity: 0;
   animation: floatUp 4s forwards, fadeIn 0.3s forwards;
-  text-align: center;
   white-space: nowrap;
 }
 @keyframes floatUp {
@@ -141,40 +144,29 @@ h1 {
 </head>
 <body>
 
-<!-- Reveal Image -->
-<canvas id="revealCanvas"></canvas>
+<div id="imageWrapper">
+  <canvas id="revealCanvas"></canvas>
+</div>
 <div class="glow"></div>
 
-<!-- Title -->
 <h1>In Memory Of<br><span style="white-space: nowrap;">Aaron Anthony Ebanks</span></h1>
 
-<!-- Prayer form inline -->
 <div id="prayerForm">
   <input id="prayerInput" maxlength="50" placeholder="Write a prayer...">
   <button id="prayerBtn">Send a Prayer</button>
 </div>
 
-<!-- Floating Prayers -->
 <div id="prayerContainer"></div>
 
 <script>
-/* === IMAGE REVEAL === */
+/* === IMAGE REVEAL ABOVE H1 === */
 const glow = document.querySelector('.glow');
 const canvas = document.getElementById('revealCanvas');
 const ctx = canvas.getContext('2d');
 const img = new Image();
-img.src = '4808D702-BB79-4624-B977-C193FDF8B4DB.png';
-let radius = 100, w, h, scale, fadeMask;
+img.src = 'Image2.png';
 
-function resizeCanvas() {
-  const maxW = window.innerWidth * 0.8;
-  const maxH = window.innerHeight * 0.4;
-  scale = Math.min(maxW / img.width, maxH / img.height);
-  w = img.width * scale;
-  h = img.height * scale;
-  canvas.width = w;
-  canvas.height = h;
-}
+let radius = 100, fadeMask;
 function createFadeMask() {
   fadeMask = document.createElement('canvas');
   fadeMask.width = radius * 2;
@@ -184,34 +176,49 @@ function createFadeMask() {
   grad.addColorStop(0,'rgba(0,0,0,1)');
   grad.addColorStop(1,'rgba(0,0,0,0)');
   mctx.fillStyle = grad;
-  mctx.beginPath(); mctx.arc(radius,radius,radius,0,Math.PI*2); mctx.fill();
+  mctx.beginPath();
+  mctx.arc(radius,radius,radius,0,Math.PI*2);
+  mctx.fill();
 }
-function drawMask(x,y){
-  ctx.clearRect(0,0,w,h);
-  ctx.fillStyle='black'; ctx.fillRect(0,0,w,h);
-  if(x>0 && y>0){
+function resizeCanvas() {
+  const ratio = window.devicePixelRatio || 1;
+  const maxW = window.innerWidth * 0.9;
+  const maxH = window.innerHeight * 0.4;
+  const scale = Math.min(maxW / img.width, maxH / img.height, 1);
+  canvas.width = img.width * scale * ratio;
+  canvas.height = img.height * scale * ratio;
+  canvas.style.width = img.width * scale + 'px';
+  canvas.style.height = img.height * scale + 'px';
+  ctx.setTransform(ratio,0,0,ratio,0,0);
+}
+function drawMask(x,y) {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle = 'black';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  if (x>0 && y>0) {
     ctx.save();
-    ctx.globalCompositeOperation='destination-out';
+    ctx.globalCompositeOperation = 'destination-out';
     ctx.drawImage(fadeMask,x-radius,y-radius);
     ctx.restore();
-    ctx.globalCompositeOperation='destination-over';
-    ctx.drawImage(img,0,0,w,h);
-    ctx.globalCompositeOperation='source-over';
+    ctx.globalCompositeOperation = 'destination-over';
+    ctx.drawImage(img,0,0,canvas.width,canvas.height);
+    ctx.globalCompositeOperation = 'source-over';
   }
 }
-function updatePos(px,py){
-  glow.style.left=`${px}px`; glow.style.top=`${py}px`;
-  const r=canvas.getBoundingClientRect();
-  drawMask(px-r.left,py-r.top);
+function updatePos(px,py) {
+  glow.style.left = `${px}px`;
+  glow.style.top = `${py}px`;
+  const r = canvas.getBoundingClientRect();
+  drawMask(px - r.left, py - r.top);
 }
-img.onload=()=>{ resizeCanvas(); createFadeMask(); drawMask(-9999,-9999); };
-window.addEventListener('resize',()=>{ resizeCanvas(); createFadeMask(); drawMask(-9999,-9999); });
+img.onload = () => { resizeCanvas(); createFadeMask(); drawMask(-9999,-9999); };
+window.addEventListener('resize',()=>{resizeCanvas();createFadeMask();drawMask(-9999,-9999);});
 
 document.addEventListener('touchstart',e=>{glow.style.opacity='1';updatePos(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});
 document.addEventListener('touchmove',e=>{updatePos(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});
 document.addEventListener('touchend',()=>{glow.style.opacity='0';drawMask(-9999,-9999);},{passive:true});
 document.addEventListener('mousedown',e=>{glow.style.opacity='1';updatePos(e.clientX,e.clientY);});
-document.addEventListener('mousemove',e=>{if(e.buttons) updatePos(e.clientX,e.clientY);});
+document.addEventListener('mousemove',e=>{if(e.buttons)updatePos(e.clientX,e.clientY);});
 document.addEventListener('mouseup',()=>{glow.style.opacity='0';drawMask(-9999,-9999);});
 document.addEventListener('mouseleave',()=>{glow.style.opacity='0';drawMask(-9999,-9999);});
 
@@ -220,7 +227,7 @@ const prayerBtnEl = document.getElementById('prayerBtn');
 const prayerInputEl = document.getElementById('prayerInput');
 const prayerContainerEl = document.getElementById('prayerContainer');
 
-function createPrayer(text){
+function createPrayer(text) {
   const prayerEl = document.createElement('div');
   prayerEl.className = 'prayer';
   prayerEl.innerText = text;
@@ -228,18 +235,16 @@ function createPrayer(text){
   const rect = document.querySelector('h1').getBoundingClientRect();
   let left = rect.left + rect.width/2 - 50 + Math.random()*100;
   let top = rect.top - 30;
-
-  // Clamp within viewport
-  const driftX = (Math.random()*60 - 30) + 'px'; // drift left/right
+  const driftX = (Math.random()*60 - 30)+'px';
   prayerEl.style.setProperty('--driftX', driftX);
-  prayerEl.style.left = `${Math.min(window.innerWidth - 50, Math.max(10,left))}px`;
+  prayerEl.style.left = `${Math.min(window.innerWidth-60, Math.max(10,left))}px`;
   prayerEl.style.top = `${Math.max(10, top)}px`;
 
   prayerContainerEl.appendChild(prayerEl);
   setTimeout(()=>prayerEl.remove(), 4000);
 }
 
-prayerBtnEl.addEventListener('click', ()=>{
+prayerBtnEl.addEventListener('click',()=>{
   let text = prayerInputEl.value.trim();
   if(!text){
     const symbols = ['🙏','🕊️','💖'];
@@ -248,19 +253,17 @@ prayerBtnEl.addEventListener('click', ()=>{
     text = '🙏 ' + text;
   }
   createPrayer(text);
-  prayerInputEl.value = '';
+  prayerInputEl.value='';
 });
 
 // Prevent double-tap zoom
 let lastTouch=0;
 document.addEventListener('touchend',e=>{
-  const now=(new Date()).getTime();
+  const now=Date.now();
   if(now-lastTouch<=300)e.preventDefault();
   lastTouch=now;
 },{passive:false});
-
-// Prevent zooming around buttons
-document.addEventListener('gesturestart', e=> e.preventDefault());
+document.addEventListener('gesturestart', e=>e.preventDefault());
 </script>
 </body>
 </html>
