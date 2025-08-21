@@ -197,11 +197,18 @@ function updatePos(px,py){
 img.onload=()=>{ resizeCanvas(); createFadeMask(); drawMask(-9999,-9999); };
 window.addEventListener('resize',()=>{ resizeCanvas(); createFadeMask(); drawMask(-9999,-9999); });
 
-document.addEventListener('touchstart',e=>{glow.style.opacity='1';updatePos(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});
-document.addEventListener('touchmove',e=>{updatePos(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});
-document.addEventListener('touchend',()=>{glow.style.opacity='0';drawMask(-9999,-9999);},{passive:true});
-document.addEventListener('mousemove',e=>{glow.style.opacity='1';updatePos(e.clientX,e.clientY);});
-document.addEventListener('mouseleave',()=>{glow.style.opacity='0';drawMask(-9999,-9999);});
+/* === GLOW ONLY WHILE ACTIVE === */
+function startGlow(x,y){ glow.style.opacity='1'; updatePos(x,y); }
+function stopGlow(){ glow.style.opacity='0'; drawMask(-9999,-9999); }
+
+document.addEventListener('touchstart',e=>{ startGlow(e.touches[0].clientX,e.touches[0].clientY); }, {passive:true});
+document.addEventListener('touchmove',e=>{ startGlow(e.touches[0].clientX,e.touches[0].clientY); }, {passive:true});
+document.addEventListener('touchend',stopGlow, {passive:true});
+
+document.addEventListener('mousedown', e=>{ startGlow(e.clientX,e.clientY); });
+document.addEventListener('mousemove', e=>{ if(e.buttons) startGlow(e.clientX,e.clientY); });
+document.addEventListener('mouseup', stopGlow);
+document.addEventListener('mouseleave', stopGlow);
 
 /* === PRAYER FEATURE === */
 const prayerBtnEl = document.getElementById('prayerBtn');
@@ -214,7 +221,8 @@ function createPrayer(text){
   prayerEl.innerText = text;
   
   const rect = document.querySelector('h1').getBoundingClientRect();
-  prayerEl.style.left = (rect.left + rect.width/2 - 50 + Math.random()*100) + 'px';
+  // Offset more to left to prevent cut-off
+  prayerEl.style.left = (rect.left + rect.width/4 + Math.random()*rect.width/2) + 'px';
   prayerEl.style.top = (rect.top - 30) + 'px';
   
   prayerContainerEl.appendChild(prayerEl);
@@ -224,7 +232,6 @@ function createPrayer(text){
 prayerBtnEl.addEventListener('click', ()=>{
   let text = prayerInputEl.value.trim();
   if(!text){
-    // Random symbol if empty
     const symbols = ['🙏','🕊️','💖'];
     text = symbols[Math.floor(Math.random()*symbols.length)];
   } else {
