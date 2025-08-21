@@ -11,8 +11,8 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden;
   background: #000;
+  overflow: hidden;
 }
 body {
   display: flex;
@@ -20,9 +20,8 @@ body {
   align-items: center;
   justify-content: center;
   text-align: center;
-  box-sizing: border-box;
-  position: relative;
 }
+
 h1 {
   font-family: 'Playfair Display', serif;
   font-weight: 600;
@@ -36,9 +35,9 @@ h1 {
     0 -1.5px 0 #000,
     0 6px 18px rgba(255,105,180,0.5);
   animation: heartbeat 2s infinite;
-  z-index: 2;
-  position: relative;
+  margin-bottom: 20px;
 }
+
 @keyframes heartbeat {
   0%,100% { text-shadow: 1.5px 0 0 #000, -1.5px 0 0 #000, 0 1.5px 0 #000, 0 -1.5px 0 #000, 0 6px 18px rgba(255,105,180,0.5);}
   25% { text-shadow: 2px 0 0 #000, -2px 0 0 #000, 0 2px 0 #000, 0 -2px 0 #000, 0 10px 30px rgba(255,105,180,0.9);}
@@ -47,157 +46,61 @@ h1 {
 }
 
 button {
-  position: relative;
-  z-index: 4;
-  margin-top: 20px;
-  padding: 12px 24px;
-  font-size: 1.2rem;
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  padding: 10px 20px;
+  color: #fff;
   background: #ff69b4;
-  color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 25px;
   cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  transition: transform 0.2s ease, background 0.3s ease;
+  z-index: 2;
 }
-.ripple {
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(255,105,180,0.6);
-  transform: scale(0);
-  animation: ripple-effect 0.6s linear;
-  pointer-events: none;
-}
-@keyframes ripple-effect {
-  to {
-    transform: scale(4);
-    opacity: 0;
-  }
+button:hover {
+  background: #ff85c1;
+  transform: scale(1.05);
 }
 
-.glow {
-  position: fixed;
-  width: 200px;
-  height: 200px;
-  background: radial-gradient(circle, rgba(255,105,180,0.8) 0%, rgba(255,105,180,0) 70%);
-  border-radius: 50%;
+.prayer {
+  position: absolute;
+  font-size: 1.5rem;
+  color: #ffb6c1;
+  animation: floatUp 2s ease-out forwards;
   pointer-events: none;
-  transform: translate(-50%, -50%);
-  z-index: 3;
-  transition: opacity 0.15s ease;
-  opacity: 0;
 }
 
-#revealCanvas {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1;
-  pointer-events: none;
+@keyframes floatUp {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-200px); opacity: 0; }
 }
 </style>
 </head>
 <body>
+
 <h1>
   In Memory Of<br>
   <span style="white-space: nowrap;">Aaron Anthony Ebanks</span>
 </h1>
 
-<button id="memoryButton">Click Me</button>
-
-<canvas id="revealCanvas"></canvas>
-<div class="glow"></div>
+<button id="prayerButton">Send a Prayer</button>
 
 <script>
-const button = document.getElementById('memoryButton');
+// Create a floating prayer emoji at button click
+document.getElementById('prayerButton').addEventListener('click', (e) => {
+  const prayer = document.createElement('div');
+  prayer.className = 'prayer';
+  prayer.textContent = '🙏';
+  document.body.appendChild(prayer);
 
-// Add ripple on click
-button.addEventListener('click', function(e){
-  const rect = button.getBoundingClientRect();
-  const ripple = document.createElement('span');
-  ripple.classList.add('ripple');
-  const size = Math.max(rect.width, rect.height);
-  ripple.style.width = ripple.style.height = `${size}px`;
-  ripple.style.left = `${e.clientX - rect.left - size/2}px`;
-  ripple.style.top = `${e.clientY - rect.top - size/2}px`;
-  button.appendChild(ripple);
+  const rect = e.target.getBoundingClientRect();
+  prayer.style.left = `${rect.left + rect.width/2}px`;
+  prayer.style.top = `${rect.top}px`;
 
-  setTimeout(()=>ripple.remove(),600);
+  setTimeout(() => prayer.remove(), 2000);
 });
-
-// --- Existing Reveal Canvas + Glow code ---
-const glow = document.querySelector('.glow');
-const canvas = document.getElementById('revealCanvas');
-const ctx = canvas.getContext('2d');
-const img = new Image();
-img.src = 'Image2.png';
-let radius = 120;
-
-let w, h, scale;
-let fadeMask;
-
-function resizeCanvas() {
-  const maxWidth = window.innerWidth * 0.9;
-  const maxHeight = window.innerHeight * 0.9;
-  scale = Math.min(maxWidth / img.width, maxHeight / img.height);
-  w = img.width * scale;
-  h = img.height * scale;
-  canvas.width = w;
-  canvas.height = h;
-}
-img.onload = () => {
-  resizeCanvas();
-  createFadeMask();
-  drawMask(-9999, -9999);
-};
-window.addEventListener('resize', () => {
-  resizeCanvas();
-  createFadeMask();
-  drawMask(-9999, -9999);
-});
-
-function createFadeMask() {
-  fadeMask = document.createElement('canvas');
-  fadeMask.width = radius * 2;
-  fadeMask.height = radius * 2;
-  const mctx = fadeMask.getContext('2d');
-  const grad = mctx.createRadialGradient(radius, radius, radius*0.6, radius, radius, radius);
-  grad.addColorStop(0, 'rgba(0,0,0,1)');
-  grad.addColorStop(1, 'rgba(0,0,0,0)');
-  mctx.fillStyle = grad;
-  mctx.beginPath();
-  mctx.arc(radius, radius, radius, 0, Math.PI*2);
-  mctx.fill();
-}
-
-function drawMask(x, y) {
-  ctx.clearRect(0,0,w,h);
-  ctx.fillStyle = 'black';
-  ctx.fillRect(0,0,w,h);
-  if (x>0 && y>0){
-    ctx.save();
-    ctx.globalCompositeOperation='destination-out';
-    ctx.drawImage(fadeMask,x-radius,y-radius);
-    ctx.restore();
-    ctx.globalCompositeOperation='destination-over';
-    ctx.drawImage(img,0,0,w,h);
-    ctx.globalCompositeOperation='source-over';
-  }
-}
-
-function updatePosition(pageX,pageY){
-  glow.style.left = `${pageX}px`;
-  glow.style.top = `${pageY}px`;
-  const rect = canvas.getBoundingClientRect();
-  const localX = pageX - rect.left;
-  const localY = pageY - rect.top;
-  drawMask(localX, localY);
-}
-
-document.addEventListener('touchstart', e => { if(e.touches.length>0){glow.style.opacity='1';updatePosition(e.touches[0].clientX,e.touches[0].clientY);}},{passive:true});
-document.addEventListener('touchmove', e => { if(e.touches.length>0){updatePosition(e.touches[0].clientX,e.touches[0].clientY);}},{passive:true});
-document.addEventListener('touchend', e => { glow.style.opacity='0'; drawMask(-9999,-9999);},{passive:true});
-document.addEventListener('mousemove', e => { glow.style.opacity='1'; updatePosition(e.clientX,e.clientY); });
-document.addEventListener('mouseleave',()=>{ glow.style.opacity='0'; drawMask(-9999,-9999); });
 </script>
+
 </body>
 </html>
