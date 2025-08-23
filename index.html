@@ -2,162 +2,212 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-<title>In Loving Memory Of Aaron Anthony Ebanks</title>
+<meta name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>In Memory Of Aaron Anthony Ebanks</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
 <style>
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  background: #000;
-  font-family: 'Playfair Display', serif;
-  -webkit-user-select: none;
-  user-select: none;
-  touch-action: manipulation;
-}
-body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  position: relative;
-}
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: #000;
+    font-family: 'Playfair Display', serif;
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: manipulation;
+  }
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+  }
 
-/* Title styling */
-h1 {
-  font-weight: 600;
-  line-height: 1.3;
-  font-size: clamp(1.8rem, 6vw, 4.5rem);
-  color: #ff69b4;
-  text-shadow:
-    1.5px 0 0 #000,
-    -1.5px 0 0 #000,
-    0 1.5px 0 #000,
-    0 -1.5px 0 #000,
-    0 6px 18px rgba(255,105,180,0.5);
-  animation: heartbeat 2s infinite;
-  margin: 0.5rem 0;
-  position: relative;
-  z-index: 2;
-}
-@keyframes heartbeat {
-  0%,100% { text-shadow: 1.5px 0 0 #000, -1.5px 0 0 #000, 0 1.5px 0 #000, 0 -1.5px 0 #000, 0 6px 18px rgba(255,105,180,0.5);}
-  25% { text-shadow: 2px 0 0 #000, -2px 0 0 #000, 0 2px 0 #000, 0 -2px 0 #000, 0 10px 30px rgba(255,105,180,0.9);}
-  50% { text-shadow: 1.5px 0 0 #000, -1.5px 0 0 #000, 0 1.5px 0 #000, 0 -1.5px 0 #000, 0 6px 18px rgba(255,105,180,0.5);}
-  75% { text-shadow: 2.5px 0 0 #000, -2.5px 0 0 #000, 0 2.5px 0 #000, 0 -2.5px 0 #000, 0 12px 36px rgba(255,105,180,1);}
-}
+  /* Title styling */
+  h1 {
+    font-weight: 600;
+    line-height: 1.3;
+    font-size: clamp(1.8rem, 6vw, 4.5rem);
+    color: #ff69b4;
+    text-shadow:
+      1.5px 0 0 #000,
+      -1.5px 0 0 #000,
+      0 1.5px 0 #000,
+      0 -1.5px 0 #000,
+      0 6px 18px rgba(255,105,180,0.5);
+    animation: heartbeat 2s infinite;
+    margin: 0.5rem 0;
+    position: relative;
+    z-index: 2;
+  }
+  @keyframes heartbeat {
+    0%,100% { text-shadow: 1.5px 0 0 #000, -1.5px 0 0 #000, 0 1.5px 0 #000, 0 -1.5px 0 #000, 0 6px 18px rgba(255,105,180,0.5);}
+    25% { text-shadow: 2px 0 0 #000, -2px 0 0 #000, 0 2px 0 #000, 0 -2px 0 #000, 0 10px 30px rgba(255,105,180,0.9);}
+    50% { text-shadow: 1.5px 0 0 #000, -1.5px 0 0 #000, 0 1.5px 0 #000, 0 -1.5px 0 #000, 0 6px 18px rgba(255,105,180,0.5);}
+    75% { text-shadow: 2.5px 0 0 #000, -2.5px 0 0 #000, 0 2.5px 0 #000, 0 -2.5px 0 #000, 0 12px 36px rgba(255,105,180,1);}
+  }
 
-/* Reveal Image */
-#revealCanvas {
-  position: absolute;
-  top: calc(50% - 100px); /* slightly above H1 */
-  left: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  z-index: 1;
-}
+  /* Reveal Image above H1 */
+  #revealCanvas {
+    position: absolute;
+    /* place it a bit above the vertical center so it sits above the H1 */
+    top: calc(50% - 110px);
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 1;
+  }
 
-/* Glow when pressing */
-.glow {
-  position: fixed;
-  width: 150px;
-  height: 150px;
-  background: radial-gradient(circle, rgba(255,105,180,0.8) 0%, rgba(255,105,180,0) 70%);
-  border-radius: 50%;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  z-index: 3;
-  transition: opacity 0.15s ease;
-  opacity: 0;
-}
+  /* Glow when pressing */
+  .glow {
+    position: fixed;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(255,105,180,0.8) 0%, rgba(255,105,180,0) 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+    transition: opacity 0.15s ease;
+    opacity: 0;
+  }
 
-/* Prayer form inline */
-#prayerForm {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  z-index: 4;
-  margin-top: 0.5rem;
-}
-#prayerInput {
-  width: clamp(120px, 40vw, 220px);
-  max-width: 220px;
-  padding: 0.3rem;
-  font-size: 0.9rem;
-  border-radius: 5px;
-  border: 1px solid #ff69b4;
-  background: #111;
-  color: white;
-}
-#prayerBtn {
-  padding: 0.35rem 0.7rem;
-  font-size: clamp(0.8rem, 2.5vw, 1rem);
-  border: none;
-  border-radius: 6px;
-  background: #ff69b4;
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-}
-#prayerBtn:active { transform: scale(0.96); }
+  /* Prayer form inline */
+  #prayerForm {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    z-index: 4;
+    margin-top: 0.5rem;
+  }
+  #prayerInput {
+    width: clamp(120px, 40vw, 220px);
+    max-width: 220px;
+    padding: 0.3rem;
+    font-size: 0.9rem;
+    border-radius: 5px;
+    border: 1px solid #ff69b4;
+    background: #111;
+    color: white;
+  }
+  #prayerBtn {
+    padding: 0.35rem 0.7rem;
+    font-size: clamp(0.8rem, 2.5vw, 1rem);
+    border: none;
+    border-radius: 6px;
+    background: #ff69b4;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  #prayerBtn:active { transform: scale(0.96); }
 
-/* Floating prayers */
-#prayerContainer {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top:0; left:0;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 3;
-}
-.prayer {
-  position: absolute;
-  font-size: 1.5rem;
-  color: #ff69b4;
-  white-space: nowrap;
-  animation: floatUp 4s linear forwards;
-}
-@keyframes floatUp {
-  0% { transform: translateY(0); opacity:1; }
-  100% { transform: translateY(-300px); opacity:0; }
-}
+  /* Floating prayers */
+  #prayerContainer {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top:0; left:0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 3;
+  }
+  .prayer {
+    position: absolute;
+    font-size: 1.5rem;
+    color: #ff69b4;
+    white-space: nowrap;
+    animation: floatUp 4s linear forwards;
+    will-change: transform, opacity;
+  }
+  @keyframes floatUp {
+    0%   { transform: translate(0, 0); opacity: 1; }
+    100% { transform: translate(var(--driftX, -40px), -320px); opacity: 0; }
+  }
 </style>
 </head>
 <body>
 
+<!-- Reveal Image -->
 <canvas id="revealCanvas"></canvas>
 <div class="glow"></div>
 
-<h1>In Loving Memory Of<br><span style="white-space: nowrap;">Aaron Anthony Ebanks</span></h1>
+<!-- Title -->
+<h1>In Memory Of<br><span style="white-space: nowrap;">Aaron Anthony Ebanks</span></h1>
 
+<!-- Prayer form inline -->
 <div id="prayerForm">
   <input id="prayerInput" maxlength="50" placeholder="Write a prayer...">
   <button id="prayerBtn">Send a Prayer</button>
 </div>
 
+<!-- Floating Prayers -->
 <div id="prayerContainer"></div>
 
+<!-- Firebase (Compat CDN) -->
+<script src="https://www.gstatic.com/firebasejs/12.1.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.1.0/firebase-database-compat.js"></script>
 <script>
-/* === IMAGE REVEAL === */
+  // Your project config (kept the same, added databaseURL)
+  const firebaseConfig = {
+    apiKey: "AIzaSyBAj8Gw4kjzjJpADNKIAi3YCJ8w3sRPNcU",
+    authDomain: "az-memorial.firebaseapp.com",
+    projectId: "az-memorial",
+    storageBucket: "az-memorial.firebasestorage.app",
+    messagingSenderId: "225117595419",
+    appId: "1:225117595419:web:7226b11bfd1094689155be",
+    measurementId: "G-EMWVHZ20B6",
+    databaseURL: "https://az-memorial-default-rtdb.firebaseio.com"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+  const prayersRef = db.ref('prayers');
+</script>
+
+<script>
+/* === IMAGE REVEAL (high quality, intrinsic resolution) === */
 const glow = document.querySelector('.glow');
 const canvas = document.getElementById('revealCanvas');
-const ctx = canvas.getContext('2d');
+const ctx = canvas.getContext('2d', { willReadFrequently: false });
 const img = new Image();
-img.src = 'Image2.png'; // Ensure correct path
-let radius = 100, w, h, scale, fadeMask;
+img.src = 'Image2.png'; // make sure this path is correct and the image exists
+let radius = 100, w = 0, h = 0, fadeMask;
 
 img.onload = () => {
-  w = img.width;
-  h = img.height;
+  // Use the image's intrinsic size for best quality
+  w = img.naturalWidth || img.width;
+  h = img.naturalHeight || img.height;
+  // But cap it to viewport so it doesn't overflow: scale down if necessary
+  const maxW = Math.min(w, Math.floor(window.innerWidth * 0.8));
+  const maxH = Math.min(h, Math.floor(window.innerHeight * 0.35));
+  const scale = Math.min(maxW / w, maxH / h, 1);
+  w = Math.floor(w * scale);
+  h = Math.floor(h * scale);
+
   canvas.width = w;
   canvas.height = h;
   createFadeMask();
-  drawMask(-9999,-9999);
+  drawMask(-9999, -9999);
 };
+
+window.addEventListener('resize', () => {
+  if (!img.complete || !img.naturalWidth) return;
+  // Recalculate size on resize to keep it crisp and placed above H1
+  let iw = img.naturalWidth, ih = img.naturalHeight;
+  const maxW = Math.min(iw, Math.floor(window.innerWidth * 0.8));
+  const maxH = Math.min(ih, Math.floor(window.innerHeight * 0.35));
+  const scale = Math.min(maxW / iw, maxH / ih, 1);
+  w = Math.floor(iw * scale);
+  h = Math.floor(ih * scale);
+  canvas.width = w;
+  canvas.height = h;
+  createFadeMask();
+  drawMask(-9999, -9999);
+});
 
 function createFadeMask(){
   fadeMask = document.createElement('canvas');
@@ -191,7 +241,7 @@ function updatePos(px,py){
   drawMask(px-r.left, py-r.top);
 }
 
-/* Touch & mouse events */
+/* Show glow only while actively pressing */
 document.addEventListener('touchstart',e=>{
   glow.style.opacity='1';
   updatePos(e.touches[0].clientX,e.touches[0].clientY);
@@ -199,53 +249,118 @@ document.addEventListener('touchstart',e=>{
 document.addEventListener('touchmove',e=>{
   updatePos(e.touches[0].clientX,e.touches[0].clientY);
 },{passive:true});
-document.addEventListener('touchend',()=>{glow.style.opacity='0'; drawMask(-9999,-9999);},{passive:true});
-document.addEventListener('mousemove',e=>{
-  if(e.buttons===1){
+document.addEventListener('touchend',()=>{
+  glow.style.opacity='0';
+  drawMask(-9999,-9999);
+},{passive:true});
+
+document.addEventListener('pointerdown',e=>{
+  if(e.pointerType==='mouse' || e.pointerType==='pen'){
     glow.style.opacity='1';
     updatePos(e.clientX,e.clientY);
-  } else {
-    glow.style.opacity='0';
-    drawMask(-9999,-9999);
   }
 });
-document.addEventListener('mouseleave',()=>{glow.style.opacity='0'; drawMask(-9999,-9999);});
+document.addEventListener('pointermove',e=>{
+  if((e.buttons & 1)===1){ // primary button held
+    glow.style.opacity='1';
+    updatePos(e.clientX,e.clientY);
+  }
+});
+document.addEventListener('pointerup',()=>{
+  glow.style.opacity='0';
+  drawMask(-9999,-9999);
+});
+document.addEventListener('mouseleave',()=>{
+  glow.style.opacity='0';
+  drawMask(-9999,-9999);
+});
 
-/* === PRAYER FEATURE === */
+/* === PRAYER FEATURE (LIVE VIA FIREBASE) === */
 const prayerBtn = document.getElementById('prayerBtn');
 const prayerInput = document.getElementById('prayerInput');
 const prayerContainer = document.getElementById('prayerContainer');
+const titleEl = document.querySelector('h1');
 
-function createPrayer(text){
-  const prayer = document.createElement('div');
-  prayer.className='prayer';
-  prayer.innerText=text;
+function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
 
-  const rect=document.querySelector('h1').getBoundingClientRect();
-  const left=Math.min(Math.max(rect.left + rect.width/2 - 50 + Math.random()*100,0), window.innerWidth-200);
-  const top=rect.top - 30;
-  prayer.style.left = left+'px';
-  prayer.style.top = top+'px';
+function renderPrayer(payload){
+  // Spawn position: above the H1 (client computes exact pixels)
+  const rect = titleEl.getBoundingClientRect();
 
-  prayerContainer.appendChild(prayer);
-  setTimeout(()=>prayer.remove(),4000);
+  const el = document.createElement('div');
+  el.className = 'prayer';
+  el.style.visibility = 'hidden'; // measure then show
+  el.style.setProperty('--driftX', payload.driftX || '-40px');
+
+  // Decide the content safely
+  const content = payload.text && payload.text.trim() ? '🙏 ' + payload.text.trim() : (payload.symbol || '🙏');
+  el.textContent = content;
+
+  // provisional placement
+  el.style.left = '0px';
+  el.style.top  = (rect.top - 30) + 'px';
+
+  prayerContainer.appendChild(el);
+
+  // Measure width and clamp inside viewport so text never gets cut
+  const elW = el.getBoundingClientRect().width;
+  const centerX = (payload.centerPercent || 50) / 100 * window.innerWidth; // percentage from DB
+  const leftPx = clamp(centerX - elW/2, 8, window.innerWidth - elW - 8);
+
+  el.style.left = leftPx + 'px';
+  el.style.visibility = 'visible';
+
+  // Clean up after animation
+  setTimeout(()=> el.remove(), 4200);
 }
 
-prayerBtn.addEventListener('click',()=>{
-  let text = prayerInput.value.trim();
-  if(!text){
-    const symbols = ['🙏','🕊️','💖'];
-    text = symbols[Math.floor(Math.random()*symbols.length)];
-  } else text='🙏 '+text;
-  createPrayer(text);
-  prayerInput.value='';
+function sendPrayer(){
+  let text = (prayerInput.value || '').trim();
+  const symbols = ['🙏','🕊️','💖','💐','🕯️'];
+  const symbol = symbols[Math.floor(Math.random()*symbols.length)];
+
+  // pick a center percentage around the H1 center, to look natural on all screens
+  const rect = titleEl.getBoundingClientRect();
+  const centerInPx = rect.left + rect.width/2;
+  const centerPercent = clamp((centerInPx / window.innerWidth) * 100 + (Math.random()*20 - 10), 10, 90);
+
+  // drift slightly left (randomized)
+  const driftX = (-30 - Math.floor(Math.random()*40)) + 'px'; // -30 to -70px
+
+  const payload = {
+    text: text || null,
+    symbol: text ? null : symbol,
+    createdAt: Date.now(),
+    centerPercent, // used to compute left on each client
+    driftX
+  };
+  // Push to Firebase; listeners (including us) will render it
+  prayersRef.push(payload).catch(console.error);
+
+  prayerInput.value = '';
+}
+
+prayerBtn.addEventListener('click', sendPrayer);
+
+// Enter to send
+prayerInput.addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter'){ e.preventDefault(); sendPrayer(); }
 });
 
-/* Prevent zoom & text selection */
+// Live listener: only animate fairly recent prayers on first load (last 30, then filter older than 10s)
+const initialCutoff = Date.now() - 10000;
+prayersRef.limitToLast(30).on('child_added', snap => {
+  const val = snap.val() || {};
+  // If it's way in the past when we first load, skip animating to avoid a burst
+  if (val.createdAt && val.createdAt < initialCutoff) return;
+  renderPrayer(val);
+});
+
+/* Prevent double-tap zoom near the button */
 let lastTouch=0;
 document.addEventListener('touchend',e=>{
-  const now=(new Date()).getTime();
-  if(now-lastTouch<=300)e.preventDefault();
+  const now=Date.now();
+  if(now-lastTouch<=300) e.preventDefault();
   lastTouch=now;
 },{passive:false});
 </script>
