@@ -27,6 +27,7 @@
 
     #hidden-container {
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       margin-top: 20px;
@@ -40,10 +41,10 @@
       transition: filter 0.2s;
     }
 
-    #tap-hint {
+    #hint-text {
+      margin-top: 8px;
       font-size: 14px;
-      color: #ccc;
-      margin-top: 6px;
+      color: #bbb;
     }
 
     #prayerMessage {
@@ -64,7 +65,6 @@
       background-color: #444;
       color: white;
       cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
     }
 
     .prayer {
@@ -86,12 +86,12 @@
 
   <div id="hidden-container">
     <img id="hidden-image" src="4808D702-BB79-4624-B977-C193FDF8B4DB.png" alt="Memorial Image">
+    <div id="hint-text">Tap and hold to reveal</div>
   </div>
-  <div id="tap-hint">Touch the picture to reveal it</div>
 
-  <h1>Share Your Thoughts</h1>
+  <h1>Send Your Prayers</h1>
   <input type="text" id="prayerMessage" maxlength="50" placeholder="Write your message...">
-  <button onclick="sendPrayer(document.getElementById('prayerMessage').value)">Send a Message</button>
+  <button onclick="sendPrayer(document.getElementById('prayerMessage').value)">Send a Prayer</button>
 
   <!-- Firebase Core + Realtime Database -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -111,9 +111,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Unique ID per browser session
-    const senderId = Date.now() + "-" + Math.random().toString(36).substr(2, 9);
-
     // Reveal image where finger moves
     function reveal(event) {
       const img = document.getElementById("hidden-image");
@@ -127,26 +124,19 @@
     // Send a prayer to Firebase
     function sendPrayer(message) {
       if (!message.trim()) return;
-
       const prayer = {
         text: message,
         icon: Math.random() > 0.5 ? "🙏" : "🕊️",
-        timestamp: Date.now(),
-        sender: senderId
+        timestamp: Date.now()
       };
-      // Show locally immediately
-      showPrayerOnScreen(prayer.icon, prayer.text);
-      // Push to Firebase
       db.ref("prayers").push(prayer);
       document.getElementById("prayerMessage").value = "";
     }
 
-    // Listen for new prayers in realtime (excluding own)
-    db.ref("prayers").on("child_added", (snapshot) => {
+    // Listen for new prayers in realtime
+    db.ref("prayers").limitToLast(1).on("child_added", (snapshot) => {
       const prayer = snapshot.val();
-      if (prayer.sender !== senderId) {
-        showPrayerOnScreen(prayer.icon, prayer.text);
-      }
+      showPrayerOnScreen(prayer.icon, prayer.text);
     });
 
     // Show prayer animation on screen
