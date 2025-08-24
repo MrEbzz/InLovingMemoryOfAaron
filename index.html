@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Memorial Prayers</title>
+  <link rel="icon" type="image/png" href="icons8-bmw-100.png">
   <style>
     body {
       margin: 0;
@@ -26,9 +27,10 @@
 
     #hidden-container {
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
-      margin-top: 20px; /* keeps clear of top edge */
+      margin-top: 20px;
     }
 
     #hidden-image {
@@ -37,6 +39,12 @@
       filter: brightness(0);
       border-radius: 12px;
       transition: filter 0.2s;
+    }
+
+    #hint-text {
+      margin-top: 8px;
+      font-size: 14px;
+      color: #bbb;
     }
 
     #prayerMessage {
@@ -78,6 +86,7 @@
 
   <div id="hidden-container">
     <img id="hidden-image" src="4808D702-BB79-4624-B977-C193FDF8B4DB.png" alt="Memorial Image">
+    <div id="hint-text">Tap and hold to reveal</div>
   </div>
 
   <h1>Send Your Prayers</h1>
@@ -114,8 +123,9 @@
 
     // Send a prayer to Firebase
     function sendPrayer(message) {
+      if (!message.trim()) return;
       const prayer = {
-        text: message || "",
+        text: message,
         icon: Math.random() > 0.5 ? "🙏" : "🕊️",
         timestamp: Date.now()
       };
@@ -124,7 +134,7 @@
     }
 
     // Listen for new prayers in realtime
-    db.ref("prayers").on("child_added", (snapshot) => {
+    db.ref("prayers").limitToLast(1).on("child_added", (snapshot) => {
       const prayer = snapshot.val();
       showPrayerOnScreen(prayer.icon, prayer.text);
     });
@@ -135,7 +145,7 @@
       el.className = "prayer";
       el.innerHTML = `${icon} ${text}`;
       
-      const x = Math.random() * (window.innerWidth - 150); // keep inside page
+      const x = Math.random() * (window.innerWidth - 150);
       const y = window.innerHeight - 120;
       el.style.left = `${x}px`;
       el.style.top = `${y}px`;
