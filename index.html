@@ -40,12 +40,6 @@
       transition: filter 0.2s;
     }
 
-    #tap-hint {
-      font-size: 14px;
-      color: #ccc;
-      margin-top: 6px;
-    }
-
     #prayerMessage {
       margin: 10px;
       padding: 8px;
@@ -87,7 +81,6 @@
   <div id="hidden-container">
     <img id="hidden-image" src="4808D702-BB79-4624-B977-C193FDF8B4DB.png" alt="Memorial Image">
   </div>
-  <div id="tap-hint">Touch or click the picture to reveal it</div>
 
   <h1>Send Your Prayers</h1>
   <input type="text" id="prayerMessage" maxlength="50" placeholder="Write your message...">
@@ -111,9 +104,10 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    const senderId = Date.now() + "-" + Math.random().toString(36).substr(2, 9);
-    const displayedKeys = new Set(); // Track which prayers have already been shown
+    // Track displayed prayers to prevent duplicates
+    const shown = new Set();
 
+    // Reveal image where finger moves
     function reveal(event) {
       const img = document.getElementById("hidden-image");
       img.style.filter = "brightness(1)";
@@ -123,38 +117,34 @@
       }, 300);
     }
 
+    // Send a prayer to Firebase
     function sendPrayer(message) {
       if (!message.trim()) return;
-
       const prayer = {
         text: message,
         icon: Math.random() > 0.5 ? "🙏" : "🕊️",
-        timestamp: Date.now(),
-        sender: senderId
+        timestamp: Date.now()
       };
-      showPrayerOnScreen(prayer.icon, prayer.text); // show immediately for sender
       db.ref("prayers").push(prayer);
       document.getElementById("prayerMessage").value = "";
     }
 
+    // Listen for new prayers in realtime
     db.ref("prayers").on("child_added", (snapshot) => {
+      if (shown.has(snapshot.key)) return; // skip duplicates
+      shown.add(snapshot.key);
+
       const prayer = snapshot.val();
-      const key = snapshot.key;
-
-      if (displayedKeys.has(key)) return; // already shown
-      displayedKeys.add(key);
-
-      if (prayer.sender !== senderId) {
-        showPrayerOnScreen(prayer.icon, prayer.text);
-      }
+      showPrayerOnScreen(prayer.icon, prayer.text);
     });
 
+    // Show prayer animation on screen
     function showPrayerOnScreen(icon, text) {
       const el = document.createElement("div");
       el.className = "prayer";
       el.innerHTML = `${icon} ${text}`;
       
-      const x = Math.random() * (window.innerWidth - 150);
+      const x = Math.random() * (window.innerWidth - 150); 
       const y = window.innerHeight - 120;
       el.style.left = `${x}px`;
       el.style.top = `${y}px`;
