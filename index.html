@@ -67,6 +67,12 @@
       cursor: pointer;
     }
 
+    #timer {
+      margin-top: 10px;
+      font-size: 16px;
+      color: #ccc;
+    }
+
     .prayer {
       position: absolute;
       font-size: 28px;
@@ -93,6 +99,9 @@
   <input type="text" id="prayerMessage" maxlength="50" placeholder="Write your message...">
   <button onclick="sendPrayer(document.getElementById('prayerMessage').value)">Send a Prayer</button>
 
+  <!-- Timer positioned under the button -->
+  <div id="timer">Loading timer...</div>
+
   <!-- Firebase Core + Realtime Database -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -111,6 +120,16 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
+    // Remove old prayers to safeguard database
+    db.ref("prayers").once("value", snapshot => {
+      const data = snapshot.val();
+      if (!data) return;
+      const keys = Object.keys(data).sort((a, b) => data[a].timestamp - data[b].timestamp);
+      if (keys.length > 50) { // keep last 50 prayers only
+        keys.slice(0, keys.length - 50).forEach(k => db.ref("prayers/" + k).remove());
+      }
+    });
+
     // Reveal image where finger moves
     function reveal(event) {
       const img = document.getElementById("hidden-image");
@@ -121,10 +140,11 @@
       }, 300);
     }
 
-    // Send a prayer to Firebase (always sends icon, even if empty)
+    // Send a prayer to Firebase
     function sendPrayer(message) {
+      if (!message.trim()) return;
       const prayer = {
-        text: message.trim(),
+        text: message,
         icon: Math.random() > 0.5 ? "🙏" : "🕊️",
         timestamp: Date.now()
       };
@@ -132,14 +152,11 @@
       document.getElementById("prayerMessage").value = "";
     }
 
-    // Ensure listener attaches only once
-    if (!window.prayersListenerAttached) {
-      db.ref("prayers").limitToLast(1).on("child_added", (snapshot) => {
-        const prayer = snapshot.val();
-        showPrayerOnScreen(prayer.icon, prayer.text);
-      });
-      window.prayersListenerAttached = true;
-    }
+    // Listen for new prayers in realtime
+    db.ref("prayers").limitToLast(1).on("child_added", (snapshot) => {
+      const prayer = snapshot.val();
+      showPrayerOnScreen(prayer.icon, prayer.text);
+    });
 
     // Show prayer animation on screen
     function showPrayerOnScreen(icon, text) {
@@ -155,6 +172,25 @@
       document.body.appendChild(el);
       setTimeout(() => el.remove(), 5000);
     }
+
+    // Continuous timer since 13th August 2024 at 07:45 AM
+    function updateTimer() {
+      const start = new Date("2024-08-13T07:45:00");
+      const now = new Date();
+      const diff = now - start;
+
+      const totalSeconds = Math.floor(diff / 1000);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      document.getElementById("timer").textContent =
+        `${hours.toString().padStart(2, "0")}:` +
+        `${minutes.toString().padStart(2, "0")}:` +
+        `${seconds.toString().padStart(2, "0")}`;
+    }
+    setInterval(updateTimer, 1000);
+    updateTimer(); // run immediately
   </script>
 
 </body>
