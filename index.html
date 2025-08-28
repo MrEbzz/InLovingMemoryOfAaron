@@ -121,11 +121,10 @@
       }, 300);
     }
 
-    // Send a prayer to Firebase
+    // Send a prayer to Firebase (always sends icon, even if empty)
     function sendPrayer(message) {
-      if (!message.trim()) return;
       const prayer = {
-        text: message,
+        text: message.trim(),
         icon: Math.random() > 0.5 ? "🙏" : "🕊️",
         timestamp: Date.now()
       };
@@ -133,11 +132,14 @@
       document.getElementById("prayerMessage").value = "";
     }
 
-    // Listen for new prayers in realtime
-    db.ref("prayers").limitToLast(1).on("child_added", (snapshot) => {
-      const prayer = snapshot.val();
-      showPrayerOnScreen(prayer.icon, prayer.text);
-    });
+    // Ensure listener attaches only once
+    if (!window.prayersListenerAttached) {
+      db.ref("prayers").limitToLast(1).on("child_added", (snapshot) => {
+        const prayer = snapshot.val();
+        showPrayerOnScreen(prayer.icon, prayer.text);
+      });
+      window.prayersListenerAttached = true;
+    }
 
     // Show prayer animation on screen
     function showPrayerOnScreen(icon, text) {
