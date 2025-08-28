@@ -1,4 +1,218 @@
-<!DOCTYPE html>
+<!DOCTYPE html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Memorial Prayers</title>
+  <link rel="icon" type="image/png" href="icons8-bmw-100.png">
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: black;
+      color: white;
+      text-align: center;
+      font-family: Arial, sans-serif;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      user-select: none;
+    }
+
+    h1 {
+      margin: 20px 0 10px 0;
+      font-size: 24px;
+      position: relative;
+      z-index: 2;
+    }
+
+    #hidden-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    #hidden-image {
+      width: 80%;
+      max-width: 400px;
+      filter: brightness(0);
+      border-radius: 12px;
+      transition: filter 0.2s;
+    }
+
+    #hint-text {
+      margin-top: 8px;
+      font-size: 14px;
+      color: #bbb;
+    }
+
+    #prayerMessage {
+      margin: 10px;
+      padding: 8px;
+      font-size: 16px;
+      border-radius: 4px;
+      border: none;
+      width: 70%;
+      max-width: 300px;
+    }
+
+    button {
+      padding: 8px 16px;
+      font-size: 15px;
+      border-radius: 4px;
+      border: none;
+      background-color: #444;
+      color: white;
+      cursor: pointer;
+    }
+
+    .prayer {
+      position: absolute;
+      font-size: 28px;
+      white-space: nowrap;
+      pointer-events: none;
+      animation: floatUp 5s linear forwards;
+      text-shadow: 0 0 6px white;
+    }
+
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-200px); }
+    }
+
+    #timer {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #ccc;
+    }
+  </style>
+</head>
+<body ontouchmove="reveal(event)">
+
+  <div id="hidden-container">
+    <img id="hidden-image" src="4808D702-BB79-4624-B977-C193FDF8B4DB.png" alt="Memorial Image">
+    <div id="hint-text">Tap and hold to reveal</div>
+  </div>
+
+  <h1>Send Your Prayers</h1>
+  <input type="text" id="prayerMessage" maxlength="50" placeholder="Write your message...">
+  <button onclick="sendPrayer(document.getElementById('prayerMessage').value)">Send a Prayer</button>
+  <div id="timer"></div>
+
+  <!-- Firebase Core + Realtime Database -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBAj8Gw4kjzjJpADNKIAi3YCJ8w3sRPNcU",
+      authDomain: "az-memorial.firebaseapp.com",
+      databaseURL: "https://az-memorial-default-rtdb.europe-west1.firebasedatabase.app/",
+      projectId: "az-memorial",
+      storageBucket: "az-memorial.firebasestorage.app",
+      messagingSenderId: "225117595419",
+      appId: "1:225117595419:web:7226b11bfd1094689155be"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // Reveal image where finger moves
+    function reveal(event) {
+      const img = document.getElementById("hidden-image");
+      img.style.filter = "brightness(1)";
+      clearTimeout(img._timeout);
+      img._timeout = setTimeout(() => {
+        img.style.filter = "brightness(0)";
+      }, 300);
+    }
+
+    // Send a prayer to Firebase
+    function sendPrayer(message) {
+      if (!message.trim()) return;
+      const prayer = {
+        text: message,
+        icon: Math.random() > 0.5 ? "🙏" : "🕊️",
+        timestamp: Date.now()
+      };
+      db.ref("prayers").push(prayer);
+      document.getElementById("prayerMessage").value = "";
+    }
+
+    // Listen for new prayers in realtime
+    db.ref("prayers").limitToLast(1).on("child_added", (snapshot) => {
+      const prayer = snapshot.val();
+      showPrayerOnScreen(prayer.icon, prayer.text);
+    });
+
+    // Show prayer animation on screen
+    function showPrayerOnScreen(icon, text) {
+      const el = document.createElement("div");
+      el.className = "prayer";
+      el.innerHTML = `${icon} ${text}`;
+      
+      const x = Math.random() * (window.innerWidth - 150);
+      const y = window.innerHeight - 120;
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 5000);
+    }
+
+    // Continuous timer since 13th August 2024 at 07:45 AM
+    function updateTimer() {
+      const start = new Date("2024-08-13T07:45:00");
+      const now = new Date();
+
+      let years = now.getFullYear() - start.getFullYear();
+      let months = now.getMonth() - start.getMonth();
+      if (months < 0) {
+        years--;
+        months += 12;
+      }
+
+      const tempDate = new Date(start);
+      tempDate.setFullYear(start.getFullYear() + years);
+      tempDate.setMonth(start.getMonth() + months);
+
+      let diffMs = now - tempDate;
+      let totalSeconds = Math.floor(diffMs / 1000);
+
+      const weeks = Math.floor(totalSeconds / (7 * 24 * 3600));
+      totalSeconds %= (7 * 24 * 3600);
+
+      const days = Math.floor(totalSeconds / (24 * 3600));
+      totalSeconds %= (24 * 3600);
+
+      const hours = Math.floor(totalSeconds / 3600);
+      totalSeconds %= 3600;
+
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+
+      // Build dynamic display only showing non-zero units
+      let parts = [];
+      if (years > 0) parts.push(`${years} year${years !== 1 ? "s" : ""}`);
+      if (months > 0) parts.push(`${months} month${months !== 1 ? "s" : ""}`);
+      if (weeks > 0) parts.push(`${weeks} week${weeks !== 1 ? "s" : ""}`);
+      if (days > 0) parts.push(`${days} day${days !== 1 ? "s" : ""}`);
+      parts.push(
+        `${hours.toString().padStart(2, "0")}:` +
+        `${minutes.toString().padStart(2, "0")}:` +
+        `${seconds.toString().padStart(2, "0")}`
+      );
+
+      document.getElementById("timer").textContent = parts.join(", ");
+    }
+
+    setInterval(updateTimer, 1000);
+    updateTimer();
+  </script>
+
+</body>
+</html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -175,7 +389,7 @@
 
     // Continuous timer since 13th August 2024 at 07:45 AM
     function updateTimer() {
-      const start = new Date("2024-08-13T07:45:00");
+      const start = new Date("2025-08-13T07:45:00");
       const now = new Date();
       const diff = now - start;
 
