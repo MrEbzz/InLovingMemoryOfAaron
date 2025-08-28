@@ -27,6 +27,7 @@
 
     #hidden-container {
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       margin-top: 20px;
@@ -40,10 +41,16 @@
       transition: filter 0.2s;
     }
 
+    #hint-text {
+      margin-top: 8px;
+      font-size: 14px;
+      color: #bbb;
+    }
+
     #prayerMessage {
       margin: 10px;
       padding: 8px;
-      font-size: 16px; /* avoid mobile zoom */
+      font-size: 16px;
       border-radius: 4px;
       border: none;
       width: 70%;
@@ -52,13 +59,12 @@
 
     button {
       padding: 8px 16px;
-      font-size: 16px; /* avoid mobile zoom */
+      font-size: 15px;
       border-radius: 4px;
       border: none;
       background-color: #444;
       color: white;
       cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
     }
 
     .prayer {
@@ -80,6 +86,7 @@
 
   <div id="hidden-container">
     <img id="hidden-image" src="4808D702-BB79-4624-B977-C193FDF8B4DB.png" alt="Memorial Image">
+    <div id="hint-text">Tap and hold to reveal</div>
   </div>
 
   <h1>Send Your Prayers</h1>
@@ -104,9 +111,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Track which prayers have been shown (prevent duplicates)
-    const shown = new Set();
-
     // Reveal image where finger moves
     function reveal(event) {
       const img = document.getElementById("hidden-image");
@@ -117,30 +121,20 @@
       }, 300);
     }
 
-    // Send a prayer to Firebase + show immediately
+    // Send a prayer to Firebase
     function sendPrayer(message) {
-      if (!message.trim()) return; // ignore empty messages
+      if (!message.trim()) return;
       const prayer = {
         text: message,
         icon: Math.random() > 0.5 ? "🙏" : "🕊️",
         timestamp: Date.now()
       };
-
-      // Show immediately (optimistic UI)
-      showPrayerOnScreen(prayer.icon, prayer.text);
-
-      // Push to Firebase
-      const newRef = db.ref("prayers").push(prayer);
-      shown.add(newRef.key); // mark as already displayed
-
+      db.ref("prayers").push(prayer);
       document.getElementById("prayerMessage").value = "";
     }
 
     // Listen for new prayers in realtime
-    db.ref("prayers").on("child_added", (snapshot) => {
-      if (shown.has(snapshot.key)) return; // prevent duplicates
-      shown.add(snapshot.key);
-
+    db.ref("prayers").limitToLast(1).on("child_added", (snapshot) => {
       const prayer = snapshot.val();
       showPrayerOnScreen(prayer.icon, prayer.text);
     });
