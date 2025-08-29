@@ -8,7 +8,7 @@
   <style>
     body {
       margin: 0;
-      overflow: hidden;
+      overflow: hidden; /* no accidental scroll */
       background: black;
       color: white;
       text-align: center;
@@ -16,22 +16,27 @@
       -webkit-user-select: none;
       -webkit-touch-callout: none;
       user-select: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 100vh;
     }
 
-    h1 {
-      margin: 20px 0 10px 0;
-      font-size: 24px;
-      position: relative;
-      z-index: 2;
+    #top-section {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
     }
 
     #carousel-container {
       position: relative;
       width: 80%;
       max-width: 400px;
-      margin: 20px auto 0 auto;
       overflow: hidden;
       border-radius: 12px;
+      margin-bottom: 10px;
     }
 
     .carousel-image {
@@ -60,9 +65,15 @@
     }
 
     #hint-text {
-      margin-top: 8px;
       font-size: 14px;
       color: #bbb;
+    }
+
+    h1 {
+      margin: 10px 0;
+      font-size: 24px;
+      position: relative;
+      z-index: 2;
     }
 
     #prayerMessage {
@@ -85,12 +96,6 @@
       cursor: pointer;
     }
 
-    #timer {
-      margin-top: 10px;
-      font-size: 14px;
-      color: #ccc;
-    }
-
     .prayer {
       position: absolute;
       font-size: 28px;
@@ -104,16 +109,24 @@
       0% { opacity: 1; transform: translateY(0); }
       100% { opacity: 0; transform: translateY(-200px); }
     }
+
+    #timer {
+      margin-top: 10px;
+      font-size: 16px;
+      color: #ccc;
+    }
   </style>
 </head>
 <body>
 
-  <div id="carousel-container">
-    <img src="4808D702-BB79-4624-B977-C193FDF8B4DB.png" class="carousel-image active">
-    <img src="image2.png" class="carousel-image next">
-    <img src="image3.png" class="carousel-image next">
+  <div id="top-section">
+    <div id="carousel-container">
+      <img src="4808D702-BB79-4624-B977-C193FDF8B4DB.png" class="carousel-image active">
+      <img src="image2.png" class="carousel-image next">
+      <img src="image3.png" class="carousel-image next">
+    </div>
+    <div id="hint-text">Swipe left or right to see more</div>
   </div>
-  <div id="hint-text">Swipe left or right to see more</div>
 
   <h1>Send Your Prayers</h1>
   <input type="text" id="prayerMessage" maxlength="50" placeholder="Write your message...">
@@ -138,53 +151,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // -------------------
-    // Image Carousel Logic
-    // -------------------
-    const images = document.querySelectorAll(".carousel-image");
-    let currentIndex = 0;
-    let startX = 0;
-
-    function showImage(index, direction) {
-      images.forEach((img, i) => {
-        img.classList.remove("active", "next", "prev");
-        if (i === index) {
-          img.classList.add("active");
-        } else if (i === (index + 1) % images.length) {
-          img.classList.add("next");
-        } else if (i === (index - 1 + images.length) % images.length) {
-          img.classList.add("prev");
-        }
-      });
-    }
-
-    function handleTouchStart(e) {
-      startX = e.touches[0].clientX;
-    }
-
-    function handleTouchEnd(e) {
-      const endX = e.changedTouches[0].clientX;
-      const diff = endX - startX;
-      if (Math.abs(diff) > 50) {
-        if (diff < 0) { // swipe left
-          currentIndex = (currentIndex + 1) % images.length;
-        } else { // swipe right
-          currentIndex = (currentIndex - 1 + images.length) % images.length;
-        }
-        showImage(currentIndex);
-      }
-    }
-
-    document.getElementById("carousel-container")
-      .addEventListener("touchstart", handleTouchStart);
-    document.getElementById("carousel-container")
-      .addEventListener("touchend", handleTouchEnd);
-
-    showImage(currentIndex);
-
-    // -------------------
-    // Prayer Send & Display
-    // -------------------
+    // Send a prayer to Firebase
     function sendPrayer(message) {
       if (!message.trim()) return;
       const prayer = {
@@ -196,6 +163,7 @@
       document.getElementById("prayerMessage").value = "";
     }
 
+    // Listen for new prayers (only one at a time)
     db.ref("prayers").limitToLast(1).on("child_added", (snapshot) => {
       const prayer = snapshot.val();
       showPrayerOnScreen(prayer.icon, prayer.text);
@@ -213,34 +181,60 @@
       setTimeout(() => el.remove(), 5000);
     }
 
-    // -------------------
-    // Continuous Timer
-    // -------------------
-    const start = new Date("2025-08-13T07:45:00");
+    // Carousel swipe logic
+    const images = document.querySelectorAll(".carousel-image");
+    let current = 0;
+    let startX = 0;
+
+    function showImage(index) {
+      images.forEach((img, i) => {
+        img.classList.remove("active", "next", "prev");
+        if (i === index) img.classList.add("active");
+        else if (i < index) img.classList.add("prev");
+        else img.classList.add("next");
+      });
+    }
+
+    document.getElementById("carousel-container").addEventListener("touchstart", (e) => {
+      startX = e.touches[0].clientX;
+    }, {passive: true});
+
+    document.getElementById("carousel-container").addEventListener("touchend", (e) => {
+      const diff = e.changedTouches[0].clientX - startX;
+      if (Math.abs(diff) > 50) {
+        if (diff < 0) current = (current + 1) % images.length; // swipe left
+        else current = (current - 1 + images.length) % images.length; // swipe right
+        showImage(current);
+      }
+    });
+
+    // Timer since 13 August 2025 07:45
+    const pastDate = new Date("2025-08-13T07:45:00");
     function updateTimer() {
       const now = new Date();
-      let diff = Math.floor((now - start) / 1000);
-      const years = Math.floor(diff / (365 * 24 * 3600));
-      diff %= 365 * 24 * 3600;
-      const months = Math.floor(diff / (30 * 24 * 3600));
-      diff %= 30 * 24 * 3600;
-      const weeks = Math.floor(diff / (7 * 24 * 3600));
-      diff %= 7 * 24 * 3600;
-      const days = Math.floor(diff / (24 * 3600));
-      diff %= 24 * 3600;
+      let diff = Math.floor((now - pastDate) / 1000); // total seconds
+
+      const years = Math.floor(diff / (365*24*60*60));
+      diff -= years * 365*24*60*60;
+      const months = Math.floor(diff / (30*24*60*60));
+      diff -= months * 30*24*60*60;
+      const weeks = Math.floor(diff / (7*24*60*60));
+      diff -= weeks * 7*24*60*60;
+      const days = Math.floor(diff / (24*60*60));
+      diff -= days * 24*60*60;
       const hours = Math.floor(diff / 3600);
-      diff %= 3600;
-      const minutes = Math.floor(diff / 60);
-      const seconds = diff % 60;
-      let parts = [];
-      if (years > 0) parts.push(years + (years === 1 ? " year" : " years"));
-      if (months > 0) parts.push(months + (months === 1 ? " month" : " months"));
-      if (weeks > 0) parts.push(weeks + (weeks === 1 ? " week" : " weeks"));
-      if (days > 0) parts.push(days + (days === 1 ? " day" : " days"));
-      if (hours > 0) parts.push(hours + (hours === 1 ? " hour" : " hours"));
-      if (minutes > 0) parts.push(minutes + (minutes === 1 ? " minute" : " minutes"));
-      parts.push(seconds + (seconds === 1 ? " second" : " seconds"));
-      document.getElementById("timer").innerText = parts.join(", ");
+      diff -= hours * 3600;
+      const mins = Math.floor(diff / 60);
+      const secs = diff % 60;
+
+      let str = '';
+      if (years > 0) str += years + 'y ';
+      if (months > 0) str += months + 'm ';
+      if (weeks > 0) str += weeks + 'w ';
+      if (days > 0) str += days + 'd ';
+      str += hours + 'h ' + mins + 'm ' + secs + 's';
+
+      document.getElementById("timer").textContent = str;
     }
     setInterval(updateTimer, 1000);
     updateTimer();
