@@ -1,192 +1,328 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Memorial Page</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Memorial Prayers</title>
+  <link rel="icon" type="image/png" href="icons8-bmw-100.png" />
   <style>
-    body {
+    :root { --ui-gap: 16px; }
+
+    /* Base */
+    html, body {
       margin: 0;
-      padding: 0;
-      background: black;
-      color: white;
-      font-family: Arial, sans-serif;
+      background: #000;
+      color: #fff;
+      font-family: Arial, Helvetica, sans-serif;
       text-align: center;
       overflow-x: hidden;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding-bottom: 24vh; /* keep room for bottom bars on iOS */
     }
 
-    .carousel-container {
+    /* Carousel */
+    .carousel {
       position: relative;
       width: 100%;
-      height: 70vh;
+      height: 48vh;               /* sits comfortably above the form */
+      max-height: 520px;
       overflow: hidden;
-      background: #000; /* fallback */
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .carousel-slide {
+    .slide {
       position: absolute;
-      top: 0; left: 0;
+      inset: 0;
       width: 100%;
       height: 100%;
       object-fit: contain;
       opacity: 0;
-      transition: opacity 0.8s ease, transform 0.8s ease;
-      z-index: 1;
+      transform: translateX(0);
+      transition: opacity 450ms ease, transform 450ms ease;
+      pointer-events: none;
     }
-    .carousel-slide.active {
-      opacity: 1;
-      z-index: 2;
-    }
+    .slide.active { opacity: 1; z-index: 2; }
+    .slide.to-left  { transform: translateX(-30%); opacity: 0; }
+    .slide.to-right { transform: translateX(30%);  opacity: 0; }
+    .slide.from-left  { transform: translateX(-30%); opacity: 0; }
+    .slide.from-right { transform: translateX(30%);  opacity: 0; }
+    .slide.entering   { transform: translateX(0);     opacity: 1; }
 
-    .swipe-hint {
+    .hint {
       position: absolute;
       bottom: 10px;
-      width: 100%;
-      text-align: center;
-      font-size: 1.1em;
-      color: white;
-      opacity: 0.7;
+      left: 0; right: 0;
+      font-size: 15px;
+      opacity: .75;
+      pointer-events: none;
     }
 
-    .message-box {
-      padding: 20px;
+    /* Title + form */
+    h1 {
+      margin: 10px 0 0 0;
+      font-size: clamp(22px, 6vw, 36px);
     }
-    .message-box h2 {
-      margin: 10px 0;
-    }
-    .message-box input {
-      padding: 10px;
-      width: 80%;
-      max-width: 300px;
-      margin: 10px auto;
-      border: none;
-      border-radius: 4px;
-      font-size: 1em;
-    }
-    .message-box button {
-      padding: 10px 20px;
-      background: #333;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 1em;
-    }
-    .message-box button:hover {
-      background: #555;
-    }
-    .timer {
+    .form {
       margin-top: 10px;
-      font-size: 0.95em;
-      color: #ccc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    #messageInput {
+      width: min(86vw, 620px);
+      max-width: 620px;
+      padding: 10px 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      outline: none;
+      color: #111;
+    }
+    #sendButton {
+      padding: 10px 18px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      background: #444;
+      color: #fff;
+      cursor: pointer;
+      touch-action: manipulation; /* prevents double-tap zoom on iOS */
+    }
+    #sendButton:active { transform: translateY(1px); }
+
+    /* Timer */
+    #sinceTimer {
+      margin-top: 6px;
+      font-size: 14px;
+      color: #bcbcbc;
+    }
+
+    /* Floating prayers */
+    .prayer {
+      position: fixed;
+      font-size: 28px;
+      white-space: nowrap;
+      pointer-events: none;
+      text-shadow: 0 0 6px #fff;
+      animation: floatUp 5s linear forwards;
+      z-index: 20;
+    }
+    @keyframes floatUp {
+      0%   { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-220px); }
     }
   </style>
 </head>
 <body>
+  <div class="wrap">
+    <!-- CAROUSEL -->
+    <div class="carousel" id="carousel">
+      <!-- Use your real images here -->
+      <img class="slide active" src="4808D702-BB79-4624-B977-C193FDF8B4DB.png" alt="Image 1" />
+      <img class="slide" src="image2.png" alt="Image 2" />
+      <img class="slide" src="image3.png" alt="Image 3" />
+      <div class="hint">Swipe left or right to see more</div>
+    </div>
 
-  <div class="carousel-container">
-    <img src="image1.jpg" class="carousel-slide active">
-    <img src="image2.jpg" class="carousel-slide">
-    <img src="image3.jpg" class="carousel-slide">
-    <div class="swipe-hint">Swipe left or right to see more</div>
+    <!-- FORM -->
+    <h1 id="title">Send Your Prayers</h1>
+    <div class="form">
+      <input id="messageInput" type="text" maxlength="50" placeholder="Write your message..." autocomplete="off" />
+      <button id="sendButton">Send a Prayer</button>
+      <div id="sinceTimer"></div>
+    </div>
   </div>
 
-  <div class="message-box">
-    <h2>Send Your Prayers</h2>
-    <input type="text" id="messageInput" placeholder="Write your message...">
-    <button id="sendButton">Send a Prayer</button>
-    <div class="timer" id="timer"></div>
-  </div>
+  <!-- Firebase (v8) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
   <script>
-    // --------------------
-    // Carousel Logic
-    // --------------------
-    document.addEventListener("DOMContentLoaded", () => {
-      const slides = document.querySelectorAll(".carousel-slide");
-      let current = 0;
-      let startX = 0;
-      let endX = 0;
+    /* =========================
+       Firebase init (Realtime DB)
+       ========================= */
+    const firebaseConfig = {
+      apiKey: "AIzaSyBAj8Gw4kjzjJpADNKIAi3YCJ8w3sRPNcU",
+      authDomain: "az-memorial.firebaseapp.com",
+      databaseURL: "https://az-memorial-default-rtdb.europe-west1.firebasedatabase.app/",
+      projectId: "az-memorial",
+      storageBucket: "az-memorial.firebasestorage.app",
+      messagingSenderId: "225117595419",
+      appId: "1:225117595419:web:7226b11bfd1094689155be"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const prayersRef = db.ref("prayers");
 
-      function showSlide(index) {
-        slides.forEach((slide, i) => {
-          slide.classList.toggle("active", i === index);
-        });
-      }
+    /* =========================
+       DOM refs
+       ========================= */
+    const sendBtn = document.getElementById("sendButton");
+    const msgInput = document.getElementById("messageInput");
+    const titleEl = document.getElementById("title");
+    const timerEl = document.getElementById("sinceTimer");
 
-      function nextSlide() {
-        current = (current + 1) % slides.length;
-        showSlide(current);
-      }
+    /* =========================
+       Prevent double-tap zoom / text selection
+       ========================= */
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function (e) {
+      const now = Date.now();
+      if (now - lastTouchEnd <= 300) e.preventDefault();
+      lastTouchEnd = now;
+    }, { passive: false });
 
-      function prevSlide() {
-        current = (current - 1 + slides.length) % slides.length;
-        showSlide(current);
-      }
+    /* =========================
+       Send prayer (only show after Firebase confirms)
+       ========================= */
+    const ICONS = ["🙏", "🕊️", "🕯️", "💖"];
+    function sendPrayer() {
+      const text = (msgInput.value || "").trim();
+      if (!text) return; // safeguard: require a message
+      const prayer = {
+        text,
+        icon: ICONS[Math.floor(Math.random() * ICONS.length)],
+        timestamp: Date.now()
+      };
+      // Push to DB; we DO NOT display yet. We'll display on 'child_added'.
+      prayersRef.push(prayer);
+      msgInput.value = "";
+    }
 
-      document.querySelector(".carousel-container").addEventListener("touchstart", (e) => {
-        startX = e.touches[0].clientX;
-      });
-      document.querySelector(".carousel-container").addEventListener("touchend", (e) => {
-        endX = e.changedTouches[0].clientX;
-        if (startX - endX > 50) nextSlide();
-        if (endX - startX > 50) prevSlide();
-      });
+    sendBtn.addEventListener("click", sendPrayer);
+    msgInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") sendPrayer();
     });
 
-    // --------------------
-    // Timer Logic
-    // --------------------
-    function updateTimer() {
-      const startDate = new Date("August 13, 2025 07:45:00");
-      const now = new Date();
-      const diff = now - startDate;
+    // Make sure we don't attach multiple listeners
+    prayersRef.off("child_added");
+    prayersRef.limitToLast(1).on("child_added", (snap) => {
+      const p = snap.val();
+      if (!p) return;
+      showPrayerOnScreen(p.icon, p.text);
+    });
 
+    function showPrayerOnScreen(icon, text) {
+      const el = document.createElement("div");
+      el.className = "prayer";
+      el.textContent = icon + " " + (text || "");
+
+      // Start position: just above the H1, centered with a small horizontal drift
+      const r = titleEl.getBoundingClientRect();
+      document.body.appendChild(el); // attach first to measure width
+      const drift = (Math.random() * 160) - 80; // -80..+80 px
+      let left = (r.left + r.width / 2) - (el.offsetWidth / 2) + drift;
+      // clamp inside viewport
+      left = Math.max(8, Math.min(left, window.innerWidth - el.offsetWidth - 8));
+      const top = Math.max(8, r.top - 28);
+
+      el.style.left = left + "px";
+      el.style.top = top + "px";
+
+      setTimeout(() => el.remove(), 5200);
+    }
+
+    /* =========================
+       Since timer (13 Aug 2025 07:45)
+       ========================= */
+    const sinceDate = new Date("2025-08-13T07:45:00"); // local time; adjust if you need a fixed timezone
+    function updateSinceTimer() {
+      const now = new Date();
+      let diff = now - sinceDate;
       if (diff < 0) {
-        document.getElementById("timer").textContent = "Starts on 13 August 2025";
+        timerEl.textContent = "Starts on 13 Aug 2025, 07:45";
         return;
       }
+      const s = Math.floor(diff / 1000);
+      const m = Math.floor(s / 60);
+      const h = Math.floor(m / 60);
+      const d = Math.floor(h / 24);
 
-      const seconds = Math.floor(diff / 1000);
-      const minutes = Math.floor(seconds / 60);
-      const hours = Math.floor(minutes / 60);
-      const days = Math.floor(hours / 24);
-      const weeks = Math.floor(days / 7);
-      const months = Math.floor(days / 30.4375); 
-      const years = Math.floor(days / 365.25);
+      const years  = Math.floor(d / 365.25);
+      const months = Math.floor(d / 30.4375);
+      const weeks  = Math.floor(d / 7);
 
-      let display = "";
-      if (years > 0) display += years + "y ";
-      if (months > 0) display += (months % 12) + "mo ";
-      if (weeks > 0) display += (weeks % 4) + "w ";
-      if (days > 0) display += (days % 7) + "d ";
-      display += (hours % 24) + "h ";
-      display += (minutes % 60) + "m ";
-      display += (seconds % 60) + "s";
+      const parts = [];
+      if (years  > 0) parts.push(years + "y");
+      if (months > 0) parts.push((months % 12) + "mo");
+      if (weeks  > 0) parts.push((weeks % 4) + "w");
+      if (d > 0)       parts.push((d % 7) + "d");
+      parts.push((h % 24) + "h", (m % 60) + "m", (s % 60) + "s");
 
-      document.getElementById("timer").textContent = display.trim();
+      timerEl.textContent = parts.join(" ");
     }
-    setInterval(updateTimer, 1000);
-    updateTimer();
+    updateSinceTimer();
+    setInterval(updateSinceTimer, 1000);
 
-    // --------------------
-    // Firebase Send Button
-    // --------------------
-    document.addEventListener("DOMContentLoaded", () => {
-      const sendButton = document.getElementById("sendButton");
-      const messageInput = document.getElementById("messageInput");
-      
-      sendButton.addEventListener("click", () => {
-        const message = messageInput.value.trim();
-        if (!message) return;
+    /* =========================
+       Carousel (swipe left/right)
+       ========================= */
+    (function initCarousel() {
+      const container = document.getElementById("carousel");
+      const slides = Array.from(container.querySelectorAll(".slide"));
+      if (slides.length === 0) return;
 
-        // Example: your Firebase code here
-        console.log("Sending message:", message);
-        // firebase.database().ref("messages").push({ text: message });
+      let index = slides.findIndex(s => s.classList.contains("active"));
+      if (index < 0) index = 0;
 
-        messageInput.value = "";
-        alert("Prayer sent.");
+      function go(to) {
+        if (to === index || to < 0 || to >= slides.length) return;
+        const current = slides[index];
+        const next = slides[to];
+
+        // direction
+        const left = to > index;
+
+        // prepare next slide off-screen
+        next.classList.remove("active", "from-left", "from-right", "entering");
+        current.classList.remove("to-left", "to-right");
+        next.classList.add(left ? "from-right" : "from-left");
+
+        // force reflow so the transition runs
+        void next.offsetWidth;
+
+        // animate
+        current.classList.add(left ? "to-left" : "to-right");
+        next.classList.add("entering");
+
+        // after transition, set states
+        setTimeout(() => {
+          current.classList.remove("active", "to-left", "to-right");
+          next.classList.remove("from-right", "from-left", "entering");
+          next.classList.add("active");
+          index = to;
+        }, 460);
+      }
+
+      // touch swipe
+      let startX = null;
+      container.addEventListener("touchstart", (e) => { startX = e.touches[0].clientX; }, { passive: true });
+      container.addEventListener("touchend", (e) => {
+        if (startX == null) return;
+        const dx = e.changedTouches[0].clientX - startX;
+        if (dx < -50) go(index + 1);
+        if (dx >  50) go(index - 1);
+        startX = null;
+      }, { passive: true });
+
+      // desktop: click left/right halves
+      container.addEventListener("click", (e) => {
+        const mid = container.getBoundingClientRect().width / 2;
+        if (e.clientX > mid) go(index + 1); else go(index - 1);
       });
-    });
+    })();
   </script>
 </body>
 </html>
