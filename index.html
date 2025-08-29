@@ -1,4 +1,252 @@
-<!DOCTYPE html>
+<!DOCTYPE html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Memorial Prayers</title>
+  <link rel="icon" type="image/png" href="icons8-bmw-100.png">
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: black;
+      color: white;
+      text-align: center;
+      font-family: Arial, sans-serif;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between; /* Keep top and bottom apart */
+      min-height: 100vh;
+    }
+
+    #top-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding-top: 40px; /* avoids iPhone notch overlap */
+    }
+
+    #carousel-container {
+      position: relative;
+      width: 80%;
+      max-width: 400px;
+      height: 250px; /* fixed height prevents collapse */
+      overflow: hidden;
+      border-radius: 12px;
+      margin-bottom: 10px;
+    }
+
+    .carousel-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: transform 0.6s ease, opacity 0.6s ease;
+    }
+
+    .carousel-image.active {
+      opacity: 1;
+      transform: translateX(0);
+      z-index: 2;
+    }
+
+    .carousel-image.next {
+      transform: translateX(100%);
+      z-index: 1;
+    }
+
+    .carousel-image.prev {
+      transform: translateX(-100%);
+      z-index: 1;
+    }
+
+    #hint-text {
+      font-size: 14px;
+      color: #bbb;
+      margin-top: 5px;
+    }
+
+    #bottom-section {
+      padding-bottom: 20px; /* avoid home bar overlap on iPhone */
+    }
+
+    h1 {
+      margin: 10px 0;
+      font-size: 24px;
+    }
+
+    #prayerMessage {
+      margin: 10px;
+      padding: 8px;
+      font-size: 16px;
+      border-radius: 4px;
+      border: none;
+      width: 70%;
+      max-width: 300px;
+    }
+
+    button {
+      padding: 8px 16px;
+      font-size: 15px;
+      border-radius: 4px;
+      border: none;
+      background-color: #444;
+      color: white;
+      cursor: pointer;
+    }
+
+    .prayer {
+      position: absolute;
+      font-size: 28px;
+      white-space: nowrap;
+      pointer-events: none;
+      animation: floatUp 5s linear forwards;
+      text-shadow: 0 0 6px white;
+    }
+
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-200px); }
+    }
+
+    #timer {
+      margin-top: 10px;
+      font-size: 16px;
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="top-section">
+    <div id="carousel-container">
+      <img src="4808D702-BB79-4624-B977-C193FDF8B4DB.png" class="carousel-image active">
+      <img src="image2.png" class="carousel-image next">
+      <img src="image3.png" class="carousel-image next">
+    </div>
+    <div id="hint-text">Swipe left or right to see more</div>
+    <div id="timer"></div>
+  </div>
+
+  <div id="bottom-section">
+    <h1>Send Your Prayers</h1>
+    <input type="text" id="prayerMessage" maxlength="50" placeholder="Write your message...">
+    <button onclick="sendPrayer(document.getElementById('prayerMessage').value)">Send a Prayer</button>
+  </div>
+
+  <!-- Firebase Core + Realtime Database -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBAj8Gw4kjzjJpADNKIAi3YCJ8w3sRPNcU",
+      authDomain: "az-memorial.firebaseapp.com",
+      databaseURL: "https://az-memorial-default-rtdb.europe-west1.firebasedatabase.app/",
+      projectId: "az-memorial",
+      storageBucket: "az-memorial.firebasestorage.app",
+      messagingSenderId: "225117595419",
+      appId: "1:225117595419:web:7226b11bfd1094689155be"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // Send a prayer
+    function sendPrayer(message) {
+      if (!message.trim()) return;
+      const prayer = {
+        text: message,
+        icon: Math.random() > 0.5 ? "🙏" : "🕊️",
+        timestamp: Date.now()
+      };
+      db.ref("prayers").push(prayer);
+      document.getElementById("prayerMessage").value = "";
+    }
+
+    // Display only Firebase-returned prayers
+    db.ref("prayers").limitToLast(1).on("child_added", (snapshot) => {
+      const prayer = snapshot.val();
+      showPrayerOnScreen(prayer.icon, prayer.text);
+    });
+
+    function showPrayerOnScreen(icon, text) {
+      const el = document.createElement("div");
+      el.className = "prayer";
+      el.innerHTML = `${icon} ${text}`;
+      const x = Math.random() * (window.innerWidth - 150);
+      const y = window.innerHeight - 120;
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 5000);
+    }
+
+    // Carousel swipe
+    const images = document.querySelectorAll(".carousel-image");
+    let current = 0, startX = 0;
+
+    function showImage(index) {
+      images.forEach((img, i) => {
+        img.classList.remove("active", "next", "prev");
+        if (i === index) img.classList.add("active");
+        else if (i < index) img.classList.add("prev");
+        else img.classList.add("next");
+      });
+    }
+
+    document.getElementById("carousel-container").addEventListener("touchstart", (e) => {
+      startX = e.touches[0].clientX;
+    }, {passive: true});
+
+    document.getElementById("carousel-container").addEventListener("touchend", (e) => {
+      const diff = e.changedTouches[0].clientX - startX;
+      if (Math.abs(diff) > 50) {
+        if (diff < 0) current = (current + 1) % images.length;
+        else current = (current - 1 + images.length) % images.length;
+        showImage(current);
+      }
+    });
+
+    // Timer since 13 August 2025 07:45
+    const pastDate = new Date("2025-08-13T07:45:00");
+    function updateTimer() {
+      const now = new Date();
+      let diff = Math.floor((now - pastDate) / 1000);
+      const years = Math.floor(diff / (365*24*60*60));
+      diff -= years * 365*24*60*60;
+      const months = Math.floor(diff / (30*24*60*60));
+      diff -= months * 30*24*60*60;
+      const weeks = Math.floor(diff / (7*24*60*60));
+      diff -= weeks * 7*24*60*60;
+      const days = Math.floor(diff / (24*60*60));
+      diff -= days * 24*60*60;
+      const hours = Math.floor(diff / 3600);
+      diff -= hours * 3600;
+      const mins = Math.floor(diff / 60);
+      const secs = diff % 60;
+      let str = '';
+      if (years > 0) str += years + 'y ';
+      if (months > 0) str += months + 'm ';
+      if (weeks > 0) str += weeks + 'w ';
+      if (days > 0) str += days + 'd ';
+      str += hours + 'h ' + mins + 'm ' + secs + 's';
+      document.getElementById("timer").textContent = str;
+    }
+    setInterval(updateTimer, 1000);
+    updateTimer();
+  </script>
+
+</body>
+</html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
