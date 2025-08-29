@@ -3,212 +3,188 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Send Your Prayers</title>
-  <link rel="icon" type="image/png" href="icons8-bmw-100.png">
+  <title>Memorial Page</title>
   <style>
     body {
       margin: 0;
       padding: 0;
-      background-color: black;
+      background: black;
       color: white;
       font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
+      text-align: center;
       overflow-x: hidden;
     }
+
     .carousel-container {
       position: relative;
       width: 100%;
-      max-width: 400px;
-      height: 500px; /* lock height */
+      height: 70vh;
       overflow: hidden;
+      background: #000; /* fallback */
     }
     .carousel-slide {
       position: absolute;
+      top: 0; left: 0;
       width: 100%;
       height: 100%;
+      object-fit: contain;
       opacity: 0;
       transition: opacity 0.8s ease, transform 0.8s ease;
+      z-index: 1;
     }
     .carousel-slide.active {
       opacity: 1;
-      transform: translateX(0);
       z-index: 2;
     }
-    .carousel-slide.left {
-      transform: translateX(-100%);
-    }
-    .carousel-slide.right {
-      transform: translateX(100%);
-    }
-    .instructions {
-      margin-top: 10px;
-      font-size: 16px;
+
+    .swipe-hint {
+      position: absolute;
+      bottom: 10px;
+      width: 100%;
       text-align: center;
+      font-size: 1.1em;
+      color: white;
+      opacity: 0.7;
     }
-    .timer {
-      margin-top: 5px;
-      font-size: 14px;
-      text-align: center;
-    }
+
     .message-box {
-      margin-top: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 100%;
-      max-width: 400px;
+      padding: 20px;
     }
-    input {
+    .message-box h2 {
+      margin: 10px 0;
+    }
+    .message-box input {
       padding: 10px;
-      width: 100%;
+      width: 80%;
       max-width: 300px;
+      margin: 10px auto;
       border: none;
       border-radius: 4px;
-      margin-bottom: 10px;
+      font-size: 1em;
     }
-    button {
+    .message-box button {
       padding: 10px 20px;
-      background-color: #444;
+      background: #333;
       color: white;
       border: none;
       border-radius: 4px;
       cursor: pointer;
+      font-size: 1em;
     }
-    button:hover {
-      background-color: #666;
+    .message-box button:hover {
+      background: #555;
     }
-    .floating-emote {
-      position: absolute;
-      font-size: 30px;
-      animation: floatUp 2s ease-out forwards;
-    }
-    @keyframes floatUp {
-      0% { opacity: 1; transform: translateY(0); }
-      100% { opacity: 0; transform: translateY(-150px); }
+    .timer {
+      margin-top: 10px;
+      font-size: 0.95em;
+      color: #ccc;
     }
   </style>
 </head>
 <body>
 
-  <div class="carousel-container" id="carousel">
+  <div class="carousel-container">
     <img src="image1.jpg" class="carousel-slide active">
     <img src="image2.jpg" class="carousel-slide">
     <img src="image3.jpg" class="carousel-slide">
+    <div class="swipe-hint">Swipe left or right to see more</div>
   </div>
-
-  <div class="instructions">Swipe left or right to see more</div>
-  <div class="timer" id="timer"></div>
 
   <div class="message-box">
     <h2>Send Your Prayers</h2>
     <input type="text" id="messageInput" placeholder="Write your message...">
     <button id="sendButton">Send a Prayer</button>
+    <div class="timer" id="timer"></div>
   </div>
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js" defer></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js" defer></script>
   <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      // --- Firebase Config ---
-      const firebaseConfig = {
-        apiKey: "YOUR_API_KEY",
-        authDomain: "YOUR_AUTH_DOMAIN",
-        databaseURL: "YOUR_DATABASE_URL",
-        projectId: "YOUR_PROJECT_ID",
-        storageBucket: "YOUR_STORAGE_BUCKET",
-        messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-        appId: "YOUR_APP_ID"
-      };
-      if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-      }
-      const db = firebase.database();
-
-      // --- Send Message ---
-      const sendBtn = document.getElementById("sendButton");
-      const input = document.getElementById("messageInput");
-      sendBtn.addEventListener("click", () => {
-        const msg = input.value.trim();
-        if (!msg) return;
-        const msgRef = db.ref("messages").push();
-        msgRef.set({ text: msg, timestamp: Date.now() }, () => {
-          // floating emote
-          createFloatingEmote("🙏");
-          input.value = "";
-        });
-      });
-
-      // --- Floating Emote ---
-      function createFloatingEmote(emote) {
-        const span = document.createElement("span");
-        span.className = "floating-emote";
-        span.textContent = emote;
-        span.style.left = (window.innerWidth/2 - 10) + "px";
-        span.style.top = (window.innerHeight/2) + "px";
-        document.body.appendChild(span);
-        setTimeout(() => document.body.removeChild(span), 2000);
-      }
-
-      // --- Timer ---
-      const timerEl = document.getElementById("timer");
-      const startTime = new Date("2025-08-13T07:45:00").getTime();
-      function updateTimer() {
-        const now = Date.now();
-        let diff = now - startTime;
-        if (diff < 0) diff = 0;
-
-        const sec = Math.floor(diff/1000) % 60;
-        const min = Math.floor(diff/(1000*60)) % 60;
-        const hr = Math.floor(diff/(1000*60*60)) % 24;
-        const days = Math.floor(diff/(1000*60*60*24)) % 7;
-        const weeks = Math.floor(diff/(1000*60*60*24*7)) % 4;
-        const months = Math.floor(diff/(1000*60*60*24*30.44)) % 12;
-        const years = Math.floor(diff/(1000*60*60*24*365.25));
-
-        let parts = [];
-        if (years > 0) parts.push(`${years}y`);
-        if (months > 0 || years > 0) parts.push(`${months}mo`);
-        if (weeks > 0 || months > 0 || years > 0) parts.push(`${weeks}w`);
-        parts.push(`${days}d ${hr}h ${min}m ${sec}s`);
-        timerEl.textContent = parts.join(" ");
-      }
-      updateTimer();
-      setInterval(updateTimer, 1000);
-
-      // --- Carousel ---
+    // --------------------
+    // Carousel Logic
+    // --------------------
+    document.addEventListener("DOMContentLoaded", () => {
       const slides = document.querySelectorAll(".carousel-slide");
       let current = 0;
-      function showSlide(index) {
-        slides.forEach((s, i) => {
-          s.classList.remove("active", "left", "right");
-          if (i === index) {
-            s.classList.add("active");
-          } else if (i < index) {
-            s.classList.add("left");
-          } else {
-            s.classList.add("right");
-          }
-        });
-        current = index;
-      }
       let startX = 0;
-      document.getElementById("carousel").addEventListener("touchstart", e => {
+      let endX = 0;
+
+      function showSlide(index) {
+        slides.forEach((slide, i) => {
+          slide.classList.toggle("active", i === index);
+        });
+      }
+
+      function nextSlide() {
+        current = (current + 1) % slides.length;
+        showSlide(current);
+      }
+
+      function prevSlide() {
+        current = (current - 1 + slides.length) % slides.length;
+        showSlide(current);
+      }
+
+      document.querySelector(".carousel-container").addEventListener("touchstart", (e) => {
         startX = e.touches[0].clientX;
       });
-      document.getElementById("carousel").addEventListener("touchend", e => {
-        const endX = e.changedTouches[0].clientX;
-        if (startX - endX > 50) {
-          // swipe left
-          showSlide((current + 1) % slides.length);
-        } else if (endX - startX > 50) {
-          // swipe right
-          showSlide((current - 1 + slides.length) % slides.length);
-        }
+      document.querySelector(".carousel-container").addEventListener("touchend", (e) => {
+        endX = e.changedTouches[0].clientX;
+        if (startX - endX > 50) nextSlide();
+        if (endX - startX > 50) prevSlide();
+      });
+    });
+
+    // --------------------
+    // Timer Logic
+    // --------------------
+    function updateTimer() {
+      const startDate = new Date("August 13, 2025 07:45:00");
+      const now = new Date();
+      const diff = now - startDate;
+
+      if (diff < 0) {
+        document.getElementById("timer").textContent = "Starts on 13 August 2025";
+        return;
+      }
+
+      const seconds = Math.floor(diff / 1000);
+      const minutes = Math.floor(seconds / 60);
+      const hours = Math.floor(minutes / 60);
+      const days = Math.floor(hours / 24);
+      const weeks = Math.floor(days / 7);
+      const months = Math.floor(days / 30.4375); 
+      const years = Math.floor(days / 365.25);
+
+      let display = "";
+      if (years > 0) display += years + "y ";
+      if (months > 0) display += (months % 12) + "mo ";
+      if (weeks > 0) display += (weeks % 4) + "w ";
+      if (days > 0) display += (days % 7) + "d ";
+      display += (hours % 24) + "h ";
+      display += (minutes % 60) + "m ";
+      display += (seconds % 60) + "s";
+
+      document.getElementById("timer").textContent = display.trim();
+    }
+    setInterval(updateTimer, 1000);
+    updateTimer();
+
+    // --------------------
+    // Firebase Send Button
+    // --------------------
+    document.addEventListener("DOMContentLoaded", () => {
+      const sendButton = document.getElementById("sendButton");
+      const messageInput = document.getElementById("messageInput");
+      
+      sendButton.addEventListener("click", () => {
+        const message = messageInput.value.trim();
+        if (!message) return;
+
+        // Example: your Firebase code here
+        console.log("Sending message:", message);
+        // firebase.database().ref("messages").push({ text: message });
+
+        messageInput.value = "";
+        alert("Prayer sent.");
       });
     });
   </script>
