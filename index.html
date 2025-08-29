@@ -6,16 +6,15 @@
   <title>Memorial Prayers</title>
   <link rel="icon" type="image/png" href="icons8-bmw-100.png" />
   <style>
-    :root { --ui-gap: 16px; }
-
-    /* Base */
     html, body {
       margin: 0;
+      padding: 0;
       background: #000;
       color: #fff;
       font-family: Arial, Helvetica, sans-serif;
       text-align: center;
-      overflow-x: hidden;
+      overflow: hidden; /* prevent scrolling entirely */
+      height: 100%;
       -webkit-user-select: none;
       user-select: none;
       -webkit-touch-callout: none;
@@ -26,20 +25,21 @@
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
-      min-height: 100vh;
-      padding-bottom: 24vh; /* keep room for bottom bars on iOS */
+      height: 100vh;
+      box-sizing: border-box;
     }
 
     /* Carousel */
     .carousel {
       position: relative;
       width: 100%;
-      height: 48vh;               /* sits comfortably above the form */
-      max-height: 520px;
+      height: 50vh;
+      max-height: 500px;
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
+      padding-bottom: 32px; /* room for swipe hint */
     }
     .slide {
       position: absolute;
@@ -61,28 +61,28 @@
 
     .hint {
       position: absolute;
-      bottom: 10px;
+      bottom: 6px;
       left: 0; right: 0;
-      font-size: 15px;
-      opacity: .75;
+      font-size: 14px;
+      opacity: .8;
       pointer-events: none;
     }
 
     /* Title + form */
     h1 {
-      margin: 10px 0 0 0;
-      font-size: clamp(22px, 6vw, 36px);
+      margin: 4px 0 0 0;
+      font-size: clamp(22px, 6vw, 34px);
     }
     .form {
-      margin-top: 10px;
+      margin-top: 8px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
     #messageInput {
-      width: min(86vw, 620px);
-      max-width: 620px;
+      width: min(84vw, 600px);
+      max-width: 600px;
       padding: 10px 12px;
       font-size: 16px;
       border: none;
@@ -98,13 +98,13 @@
       background: #444;
       color: #fff;
       cursor: pointer;
-      touch-action: manipulation; /* prevents double-tap zoom on iOS */
+      touch-action: manipulation;
     }
     #sendButton:active { transform: translateY(1px); }
 
     /* Timer */
     #sinceTimer {
-      margin-top: 6px;
+      margin-top: 4px;
       font-size: 14px;
       color: #bcbcbc;
     }
@@ -129,7 +129,6 @@
   <div class="wrap">
     <!-- CAROUSEL -->
     <div class="carousel" id="carousel">
-      <!-- Use your real images here -->
       <img class="slide active" src="4808D702-BB79-4624-B977-C193FDF8B4DB.png" alt="Image 1" />
       <img class="slide" src="image2.png" alt="Image 2" />
       <img class="slide" src="image3.png" alt="Image 3" />
@@ -175,28 +174,20 @@
     const timerEl = document.getElementById("sinceTimer");
 
     /* =========================
-       Prevent double-tap zoom / text selection
-       ========================= */
-    let lastTouchEnd = 0;
-    document.addEventListener('touchend', function (e) {
-      const now = Date.now();
-      if (now - lastTouchEnd <= 300) e.preventDefault();
-      lastTouchEnd = now;
-    }, { passive: false });
-
-    /* =========================
-       Send prayer (only show after Firebase confirms)
+       Send prayer (allow empty → random emote)
        ========================= */
     const ICONS = ["🙏", "🕊️", "🕯️", "💖"];
     function sendPrayer() {
-      const text = (msgInput.value || "").trim();
-      if (!text) return; // safeguard: require a message
+      let text = (msgInput.value || "").trim();
+      if (!text) {
+        // empty → just use an icon as "message"
+        text = ICONS[Math.floor(Math.random() * ICONS.length)];
+      }
       const prayer = {
         text,
         icon: ICONS[Math.floor(Math.random() * ICONS.length)],
         timestamp: Date.now()
       };
-      // Push to DB; we DO NOT display yet. We'll display on 'child_added'.
       prayersRef.push(prayer);
       msgInput.value = "";
     }
@@ -206,7 +197,6 @@
       if (e.key === "Enter") sendPrayer();
     });
 
-    // Make sure we don't attach multiple listeners
     prayersRef.off("child_added");
     prayersRef.limitToLast(1).on("child_added", (snap) => {
       const p = snap.val();
@@ -218,26 +208,21 @@
       const el = document.createElement("div");
       el.className = "prayer";
       el.textContent = icon + " " + (text || "");
-
-      // Start position: just above the H1, centered with a small horizontal drift
       const r = titleEl.getBoundingClientRect();
-      document.body.appendChild(el); // attach first to measure width
-      const drift = (Math.random() * 160) - 80; // -80..+80 px
+      document.body.appendChild(el);
+      const drift = (Math.random() * 160) - 80;
       let left = (r.left + r.width / 2) - (el.offsetWidth / 2) + drift;
-      // clamp inside viewport
       left = Math.max(8, Math.min(left, window.innerWidth - el.offsetWidth - 8));
       const top = Math.max(8, r.top - 28);
-
       el.style.left = left + "px";
       el.style.top = top + "px";
-
       setTimeout(() => el.remove(), 5200);
     }
 
     /* =========================
        Since timer (13 Aug 2025 07:45)
        ========================= */
-    const sinceDate = new Date("2025-08-13T07:45:00"); // local time; adjust if you need a fixed timezone
+    const sinceDate = new Date("2025-08-13T07:45:00");
     function updateSinceTimer() {
       const now = new Date();
       let diff = now - sinceDate;
@@ -249,7 +234,6 @@
       const m = Math.floor(s / 60);
       const h = Math.floor(m / 60);
       const d = Math.floor(h / 24);
-
       const years  = Math.floor(d / 365.25);
       const months = Math.floor(d / 30.4375);
       const weeks  = Math.floor(d / 7);
@@ -260,7 +244,6 @@
       if (weeks  > 0) parts.push((weeks % 4) + "w");
       if (d > 0)       parts.push((d % 7) + "d");
       parts.push((h % 24) + "h", (m % 60) + "m", (s % 60) + "s");
-
       timerEl.textContent = parts.join(" ");
     }
     updateSinceTimer();
@@ -273,7 +256,6 @@
       const container = document.getElementById("carousel");
       const slides = Array.from(container.querySelectorAll(".slide"));
       if (slides.length === 0) return;
-
       let index = slides.findIndex(s => s.classList.contains("active"));
       if (index < 0) index = 0;
 
@@ -281,46 +263,32 @@
         if (to === index || to < 0 || to >= slides.length) return;
         const current = slides[index];
         const next = slides[to];
-
-        // direction
         const left = to > index;
-
-        // prepare next slide off-screen
-        next.classList.remove("active", "from-left", "from-right", "entering");
-        current.classList.remove("to-left", "to-right");
+        next.classList.remove("active","from-left","from-right","entering");
+        current.classList.remove("to-left","to-right");
         next.classList.add(left ? "from-right" : "from-left");
-
-        // force reflow so the transition runs
         void next.offsetWidth;
-
-        // animate
         current.classList.add(left ? "to-left" : "to-right");
         next.classList.add("entering");
-
-        // after transition, set states
         setTimeout(() => {
-          current.classList.remove("active", "to-left", "to-right");
-          next.classList.remove("from-right", "from-left", "entering");
+          current.classList.remove("active","to-left","to-right");
+          next.classList.remove("from-right","from-left","entering");
           next.classList.add("active");
           index = to;
         }, 460);
       }
-
-      // touch swipe
       let startX = null;
-      container.addEventListener("touchstart", (e) => { startX = e.touches[0].clientX; }, { passive: true });
-      container.addEventListener("touchend", (e) => {
-        if (startX == null) return;
-        const dx = e.changedTouches[0].clientX - startX;
-        if (dx < -50) go(index + 1);
-        if (dx >  50) go(index - 1);
-        startX = null;
-      }, { passive: true });
-
-      // desktop: click left/right halves
-      container.addEventListener("click", (e) => {
-        const mid = container.getBoundingClientRect().width / 2;
-        if (e.clientX > mid) go(index + 1); else go(index - 1);
+      container.addEventListener("touchstart",(e)=>{startX=e.touches[0].clientX;},{passive:true});
+      container.addEventListener("touchend",(e)=>{
+        if(startX==null)return;
+        const dx=e.changedTouches[0].clientX-startX;
+        if(dx<-50)go(index+1);
+        if(dx>50)go(index-1);
+        startX=null;
+      },{passive:true});
+      container.addEventListener("click",(e)=>{
+        const mid=container.getBoundingClientRect().width/2;
+        if(e.clientX>mid)go(index+1);else go(index-1);
       });
     })();
   </script>
