@@ -1,197 +1,177 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Memorial Prayers</title>
-  <link rel="icon" type="image/png" href="icons8-bmw-100.png">
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      background: black;
-      color: white;
-      text-align: center;
-      font-family: Arial, sans-serif;
-      -webkit-user-select: none;
-      -webkit-touch-callout: none;
-      user-select: none;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memorial Page</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background: black;
+    color: white;
+    overflow: hidden; /* prevent scrolling */
+    text-align: center;
+  }
 
-    h1 {
-      margin: 20px 0 10px 0;
-      font-size: 24px;
-      position: relative;
-      z-index: 2;
-    }
+  #image-container {
+    position: relative;
+    width: 80%;
+    max-width: 400px;
+    margin: 40px auto 0 auto;
+    overflow: hidden;
+    border-radius: 12px;
+    touch-action: pan-y;
+    z-index: 5;
+    min-height: 250px; /* forces space even if image hidden */
+  }
 
-    #image-container {
-      position: relative;
-      width: 80%;
-      max-width: 400px;
-      margin: 20px auto 0 auto;
-      overflow: hidden;
-      border-radius: 12px;
-    }
+  .gallery-image {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: auto;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+  }
 
-    .gallery-image {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%;
-      height: auto;
-      opacity: 0;
-      transition: opacity 1s ease-in-out;
-    }
+  .gallery-image.active {
+    opacity: 1;
+    z-index: 6;
+  }
 
-    .gallery-image.active {
-      opacity: 1;
-      z-index: 1;
-    }
+  #hint-text {
+    margin-top: 12px;
+    font-size: 14px;
+    color: #bbb;
+    z-index: 4;
+    position: relative;
+  }
 
-    #hint-text {
-      margin-top: 8px;
-      font-size: 14px;
-      color: #bbb;
-    }
+  h1 {
+    margin: 20px 0 10px 0;
+  }
 
-    #prayerMessage {
-      margin: 10px;
-      padding: 8px;
-      font-size: 16px;
-      border-radius: 4px;
-      border: none;
-      width: 70%;
-      max-width: 300px;
-    }
+  #prayerInput {
+    width: 80%;
+    padding: 10px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+  }
 
-    button {
-      padding: 8px 16px;
-      font-size: 15px;
-      border-radius: 4px;
-      border: none;
-      background-color: #444;
-      color: white;
-      cursor: pointer;
-    }
+  #sendPrayer {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    background: #444;
+    color: white;
+    cursor: pointer;
+  }
 
-    .prayer {
-      position: absolute;
-      font-size: 28px;
-      white-space: nowrap;
-      pointer-events: none;
-      animation: floatUp 5s linear forwards;
-      text-shadow: 0 0 6px white;
-    }
+  #sendPrayer:hover {
+    background: #666;
+  }
 
-    @keyframes floatUp {
-      0% { opacity: 1; transform: translateY(0); }
-      100% { opacity: 0; transform: translateY(-200px); }
-    }
+  #timer {
+    margin-top: 8px;
+    font-size: 16px;
+  }
 
-    #timer {
-      margin-top: 10px;
-      font-size: 14px;
-      color: #ccc;
-    }
-  </style>
+  .prayer-emoji {
+    position: fixed;
+    bottom: 20px;
+    font-size: 28px;
+    animation: floatUp 3s ease-out forwards;
+  }
+
+  @keyframes floatUp {
+    0% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-100px); }
+  }
+</style>
 </head>
 <body>
 
-  <div id="image-container">
-    <img class="gallery-image active" src="4808D702-BB79-4624-B977-C193FDF8B4DB.png" alt="Memorial Image 1">
-    <img class="gallery-image" src="01d42466-ca15-4225-9097-8794742f4f17.jpeg" alt="Memorial Image 2">
-    <img class="gallery-image" src="05994bd7-e3f1-49f4-aa2d-a537af544243.jpeg" alt="Memorial Image 3">
-  </div>
-  <div id="hint-text">Swipe left or right to see more</div>
+<div id="image-container">
+  <img class="gallery-image active" src="4808D702-BB79-4624-B977-C193FDF8B4DB.png" alt="Memorial Image 1">
+  <img class="gallery-image" src="01d42466-ca15-4225-9097-8794742f4f17.jpeg" alt="Memorial Image 2">
+  <img class="gallery-image" src="05994bd7-e3f1-49f4-aa2d-a537af544243.jpeg" alt="Memorial Image 3">
+</div>
 
-  <h1>Send Your Prayers</h1>
-  <input type="text" id="prayerMessage" maxlength="50" placeholder="Write your message...">
-  <button onclick="sendPrayer()">Send a Prayer</button>
+<div id="hint-text">Swipe left or right to see more</div>
 
-  <div id="timer"></div>
+<h1>Send Your Prayers</h1>
+<input type="text" id="prayerInput" placeholder="Write your message...">
+<button id="sendPrayer">Send a Prayer</button>
+<div id="timer"></div>
 
-  <!-- Firebase Core + Realtime Database -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script>
+  // Timer since 13 Aug 2025
+  const startDate = new Date('2025-08-13T00:00:00Z');
+  function updateTimer() {
+    const now = new Date();
+    let diff = Math.floor((now - startDate) / 1000);
+    const days = Math.floor(diff / (60*60*24));
+    diff %= (60*60*24);
+    const hours = Math.floor(diff / (60*60));
+    diff %= (60*60);
+    const minutes = Math.floor(diff / 60);
+    const seconds = diff % 60;
+    document.getElementById('timer').textContent = 
+      `${days}d ${hours}h ${minutes}m ${seconds}s`;
+  }
+  setInterval(updateTimer, 1000);
+  updateTimer();
 
-  <script>
-    // Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyBAj8Gw4kjzjJpADNKIAi3YCJ8w3sRPNcU",
-      authDomain: "az-memorial.firebaseapp.com",
-      databaseURL: "https://az-memorial-default-rtdb.europe-west1.firebasedatabase.app/",
-      projectId: "az-memorial",
-      storageBucket: "az-memorial.firebasestorage.app",
-      messagingSenderId: "225117595419",
-      appId: "1:225117595419:web:7226b11bfd1094689155be"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    // Prayer sending
-    function sendPrayer() {
-      const input = document.getElementById("prayerMessage");
-      let message = input.value.trim();
-      if (!message) message = Math.random() > 0.5 ? "🙏" : "🕊️";
-
-      const prayer = {
-        text: message,
-        icon: Math.random() > 0.5 ? "🙏" : "🕊️",
-        timestamp: Date.now()
-      };
-      db.ref("prayers").push(prayer);
-      input.value = "";
-    }
-
-    // Realtime prayer listener
-    db.ref("prayers").limitToLast(1).on("child_added", (snapshot) => {
-      const prayer = snapshot.val();
-      showPrayerOnScreen(prayer.icon, prayer.text);
+  // Image gallery auto cycle + swipe
+  const images = document.querySelectorAll('.gallery-image');
+  let currentIndex = 0;
+  function showImage(index) {
+    images.forEach((img, i) => {
+      img.classList.toggle('active', i === index);
     });
+  }
+  function nextImage() {
+    currentIndex = (currentIndex + 1) % images.length;
+    showImage(currentIndex);
+  }
+  function prevImage() {
+    currentIndex = (currentIndex - 1 + images.length) % images.length;
+    showImage(currentIndex);
+  }
+  setInterval(nextImage, 5000); // auto-change every 5s
 
-    function showPrayerOnScreen(icon, text) {
-      const el = document.createElement("div");
-      el.className = "prayer";
-      el.innerHTML = `${icon} ${text}`;
-      const x = Math.random() * (window.innerWidth - 150);
-      const y = window.innerHeight - 120;
-      el.style.left = `${x}px`;
-      el.style.top = `${y}px`;
-      document.body.appendChild(el);
-      setTimeout(() => el.remove(), 5000);
+  let startX = 0;
+  document.getElementById('image-container').addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+  });
+  document.getElementById('image-container').addEventListener('touchend', e => {
+    const endX = e.changedTouches[0].clientX;
+    if (startX - endX > 50) nextImage();
+    if (endX - startX > 50) prevImage();
+  });
+
+  // Prayer send function
+  const emojis = ["🙏","🕯️","❤️","🌟","💐","🕊️","💖"];
+  document.getElementById('sendPrayer').addEventListener('click', () => {
+    const input = document.getElementById('prayerInput');
+    let message = input.value.trim();
+    if (!message) {
+      message = emojis[Math.floor(Math.random() * emojis.length)];
     }
-
-    // Timer since 13 August 2025 07:45
-    const startDate = new Date("2025-08-13T07:45:00");
-    function updateTimer() {
-      const now = new Date();
-      let diff = Math.floor((now - startDate) / 1000);
-
-      const years = Math.floor(diff / (60*60*24*365));
-      diff %= (60*60*24*365);
-      const months = Math.floor(diff / (60*60*24*30));
-      diff %= (60*60*24*30);
-      const weeks = Math.floor(diff / (60*60*24*7));
-      diff %= (60*60*24*7);
-      const days = Math.floor(diff / (60*60*24));
-      diff %= (60*60*24);
-      const hours = Math.floor(diff / 3600);
-      diff %= 3600;
-      const minutes = Math.floor(diff / 60);
-      const seconds = diff % 60;
-
-      let parts = [];
-      if (years) parts.push(`${years}y`);
-      if (months) parts.push(`${months}m`);
-      if (weeks) parts.push(`${weeks}w`);
-      if (days) parts.push(`${days}d`);
-      parts.push(`${hours}h ${minutes}m ${seconds}s`);
-
-      document.getElementById("timer").innerText = parts.join(" ");
-    }
-    setInterval(updateTimer, 1000);
-    updateTimer();
-  </script>
+    const prayer = document.createElement('div');
+    prayer.className = 'prayer-emoji';
+    prayer.style.left = Math.random() * (window.innerWidth - 40) + 'px';
+    prayer.textContent = message;
+    document.body.appendChild(prayer);
+    setTimeout(() => prayer.remove(), 3000);
+    input.value = '';
+  });
+</script>
 
 </body>
 </html>
