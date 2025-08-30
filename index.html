@@ -32,7 +32,6 @@
       margin: 20px auto 0 auto;
       overflow: hidden;
       border-radius: 12px;
-      touch-action: pan-y;
     }
 
     .gallery-image {
@@ -192,49 +191,6 @@
     }
     setInterval(updateTimer, 1000);
     updateTimer();
-
-    // Slideshow with swipe + auto-fade
-    const images = document.querySelectorAll(".gallery-image");
-    let currentIndex = 0;
-    let slideTimer = setInterval(nextImage, 5000);
-
-    function showImage(index) {
-      images.forEach((img, i) => {
-        img.classList.toggle("active", i === index);
-      });
-    }
-
-    function nextImage() {
-      currentIndex = (currentIndex + 1) % images.length;
-      showImage(currentIndex);
-    }
-
-    function prevImage() {
-      currentIndex = (currentIndex - 1 + images.length) % images.length;
-      showImage(currentIndex);
-    }
-
-    function resetTimer() {
-      clearInterval(slideTimer);
-      slideTimer = setInterval(nextImage, 5000);
-    }
-
-    // Swipe detection
-    let startX = 0;
-    const container = document.getElementById("image-container");
-    container.addEventListener("touchstart", (e) => {
-      startX = e.touches[0].clientX;
-    });
-    container.addEventListener("touchend", (e) => {
-      const endX = e.changedTouches[0].clientX;
-      if (startX - endX > 50) { // swipe left
-        nextImage();
-        resetTimer();
-      } else if (endX - startX > 50) { // swipe right
-        prevImage();
-        resetTimer();
-      }
-    });
   </script>
 
 </body>
