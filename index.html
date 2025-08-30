@@ -3,23 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <title>Prayer Page</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <style>
-    body {
+    html, body {
       margin: 0;
       padding: 0;
       background: black;
       color: white;
       font-family: Arial, sans-serif;
-      overflow: hidden; /* No scrolling */
-      height: 100vh;
+      height: 100%;
+      overflow: hidden; /* no scroll */
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      user-select: none;
+      touch-action: none; /* disables pinch zoom */
+    }
+
+    body {
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       align-items: center;
+      height: 100vh;
       text-align: center;
     }
 
+    /* Image carousel container */
     #image-container {
       flex: 1;
       position: relative;
@@ -44,8 +53,10 @@
       opacity: 1;
     }
 
+    /* Text section stays at bottom */
     #text-section {
-      padding: 10px 0;
+      flex-shrink: 0;
+      padding: 5px 0 10px 0;
     }
 
     #messageInput {
@@ -88,7 +99,7 @@
 </head>
 <body>
   <div id="image-container">
-    <img src="your-first-image.jpeg" class="active">
+    <img src="4808D702-BB79-4624-B977-C193FDF8B4DB.png" class="active">
     <img src="01d42466-ca15-4225-9097-8794742f4f17.jpeg">
     <img src="05994bd7-e3f1-49f4-aa2d-a537af544243.jpeg">
   </div>
