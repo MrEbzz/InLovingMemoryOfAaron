@@ -92,7 +92,7 @@
       pointer-events: none;
       animation: floatUp 5s linear forwards;
       text-shadow: 0 0 6px white;
-      z-index: 2; /* Ensures prayers appear over images */
+      z-index: 2;
     }
 
     @keyframes floatUp {
@@ -121,7 +121,6 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <script>
-    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyBAj8Gw4kjzjJpADNKIAi3YCJ8w3sRPNcU",
       authDomain: "az-memorial.firebaseapp.com",
@@ -169,9 +168,12 @@
       input.value = "";
     }
 
+    const pageLoadTime = Date.now();
     db.ref("prayers").on("child_added", snapshot => {
       const p = snapshot.val();
-      showPrayerOnScreen(p.icon, p.text);
+      if (p.timestamp && p.timestamp >= pageLoadTime) {
+        showPrayerOnScreen(p.icon, p.text);
+      }
     });
 
     function showPrayerOnScreen(icon, text) {
@@ -213,6 +215,18 @@
     }
     setInterval(updateTimer, 1000);
     updateTimer();
+  </script>
+
+  <!-- Prevent double-tap zoom -->
+  <script>
+    let lastTouch = 0;
+    document.addEventListener('touchend', function (e) {
+      const now = new Date().getTime();
+      if (now - lastTouch <= 400) {
+        e.preventDefault();
+      }
+      lastTouch = now;
+    }, { passive: false });
   </script>
 </body>
 </html>
