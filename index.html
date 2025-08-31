@@ -1,169 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Memorial Prayers</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
   <link rel="icon" type="image/png" href="icons8-bmw-100.png">
   <style>
-    :root {
-      --pad: 10px;
-      --accent: #444;
-      --text: #fff;
-      --shadow: 0 0 6px #fff;
-    }
-
-    html, body {
+    body {
       margin: 0;
-      padding: 0;
-      height: 100%;
-      background: #000;
-      color: var(--text);
+      overflow: hidden;
+      background: black;
+      color: white;
       font-family: Arial, sans-serif;
-      overflow: hidden;                /* no scroll */
       -webkit-user-select: none;
-      user-select: none;
       -webkit-touch-callout: none;
-      touch-action: manipulation;      /* disables double-tap zoom, keeps taps working */
-      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      height: 100vh;
       display: flex;
       flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
     }
 
-    /* Top: image carousel */
     #image-container {
       position: relative;
       width: 100%;
-      height: 58vh;                    /* fits within screen */
-      max-height: 58vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      height: 55vh; 
       overflow: hidden;
-      flex-shrink: 0;
     }
-    #image-container img {
+    .slider-image {
       position: absolute;
-      max-width: 100%;
-      max-height: 100%;
-      width: auto;
-      height: auto;
-      object-fit: contain;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
       opacity: 0;
-      transition: opacity 0.8s ease-in-out;
-      will-change: opacity;
+      transition: opacity 1s ease;
     }
-    #image-container img.active { opacity: 1; }
+    .slider-image.active {
+      opacity: 1;
+    }
 
-    /* Instruction under images */
-    #swipe-instruction {
-      text-align: center;
+    #hint-text {
+      margin-top: 6px;
       font-size: 14px;
       color: #bbb;
-      margin: 6px 0 0 0;
-      flex-shrink: 0;
-    }
-
-    /* Middle: title */
-    h1 {
-      margin: 6px 0 0 0;
-      font-size: 22px;
       text-align: center;
-      flex-shrink: 0;
     }
 
-    /* Bottom: input + button + timer */
-    #bottom-bar {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      padding: var(--pad);
-      flex-shrink: 0;
+    h1 {
+      margin: 10px 0 5px 0;
+      font-size: 22px;
+      position: relative;
+      z-index: 2;
+      text-align: center;
     }
-    #form-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      flex-wrap: wrap;
-      width: 100%;
-    }
-    #prayerInput {
-      padding: 8px;
-      font-size: 16px;
+
+    #prayerMessage {
+      margin: 5px;
+      padding: 6px;
+      font-size: 15px;
       border-radius: 4px;
       border: none;
-      width: min(70%, 320px);
+      width: 65%;
+      max-width: 260px;
     }
     button {
-      padding: 10px 16px;
-      font-size: 16px;
+      padding: 6px 14px;
+      font-size: 15px;
       border-radius: 4px;
       border: none;
-      background: var(--accent);
-      color: var(--text);
+      background-color: #444;
+      color: white;
       cursor: pointer;
+      margin-top: 4px;
     }
-    button:active { transform: scale(0.98); }
 
-    #timer {
+    #time-since {
+      margin-top: 5px;
       font-size: 14px;
-      color: #ddd;
-      margin-top: 2px;
+      color: #ccc;
     }
 
-    /* Floating prayers */
     .prayer {
-      position: fixed;
-      bottom: 18px;
+      position: absolute;
       font-size: 24px;
       white-space: nowrap;
       pointer-events: none;
-      text-shadow: var(--shadow);
+      text-shadow: 0 0 6px white;
       animation: floatUp 4s ease-out forwards;
-      z-index: 10;
-    }
-    @keyframes floatUp {
-      0%   { opacity: 1; transform: translateY(0); }
-      100% { opacity: 0; transform: translateY(-200px); }
+      z-index: 5;
     }
 
-    /* Desktop tweaks */
-    @media (min-aspect-ratio: 4/3) {
-      #image-container { height: 60vh; max-height: 60vh; }
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-100px); }
     }
   </style>
 </head>
 <body>
 
-  <!-- Image carousel -->
+  <!-- Image container with slider -->
   <div id="image-container">
-    <img src="4808D702-BB79-4624-B977-C193FDF8B4DB.png" class="active" alt="Memorial 1">
-    <img src="01d42466-ca15-4225-9097-8794742f4f17.jpeg" alt="Memorial 2">
-    <img src="05994bd7-e3f1-49f4-aa2d-a537af544243.jpeg" alt="Memorial 3">
+    <img src="4808D702-BB79-4624-B977-C193FDF8B4DB.png" class="slider-image active" alt="Image 1">
+    <img src="01d42466-ca15-4225-9097-8794742f4f17.jpeg" class="slider-image" alt="Image 2">
+    <img src="05994bd7-e3f1-49f4-aa2d-a537af544243.jpeg" class="slider-image" alt="Image 3">
   </div>
-  <div id="swipe-instruction">Swipe left or right to see more</div>
+  <div id="hint-text">Swipe left or right to see more</div>
 
   <h1>Send Your Prayers</h1>
+  <input type="text" id="prayerMessage" maxlength="50" placeholder="Write your message...">
+  <button onclick="sendPrayer()">Send a Prayer</button>
+  <div id="time-since"></div>
 
-  <div id="bottom-bar">
-    <div id="form-row">
-      <input id="prayerInput" maxlength="50" placeholder="Write your message…">
-      <button id="sendBtn" type="button">Send a Prayer</button>
-    </div>
-    <div id="timer"></div>
-  </div>
-
-  <!-- Firebase v8 Core + Realtime Database -->
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
   <script>
-    /* =======================
-       Firebase (REAL-TIME)
-       ======================= */
+    // Firebase setup
     const firebaseConfig = {
       apiKey: "AIzaSyBAj8Gw4kjzjJpADNKIAi3YCJ8w3sRPNcU",
       authDomain: "az-memorial.firebaseapp.com",
@@ -176,155 +130,102 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    const emojis = ["🙏","🕊️","🪽","🕯️","🌟","💖"];
-
-    // Send a prayer: if input empty, send a random emoji as the text
-    const inputEl = document.getElementById('prayerInput');
-    const sendBtn = document.getElementById('sendBtn');
-
+    // Send prayer (message or random emoji)
     function sendPrayer() {
-      let message = (inputEl.value || "").trim();
-      if (message === "") {
-        message = emojis[Math.floor(Math.random() * emojis.length)];
-      }
-      const icon = emojis[Math.floor(Math.random() * emojis.length)];
-      const payload = {
-        text: message,
-        icon: icon,
-        timestamp: firebase.database.ServerValue.TIMESTAMP
+      const input = document.getElementById('prayerMessage');
+      const text = input.value.trim();
+      const icon = Math.random() > 0.5 ? "🙏" : "🕊️";
+      const prayer = { 
+        text: text || "", 
+        icon: icon, 
+        timestamp: Date.now() 
       };
-      db.ref("prayers").push(payload);
-      inputEl.value = "";
+      db.ref("prayers").push(prayer);
+      input.value = "";
     }
 
-    sendBtn.addEventListener('click', sendPrayer);
-    // Enter key submits too (but won't cause zoom)
-    inputEl.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        sendPrayer();
-      }
+    // Realtime listener
+    db.ref("prayers").limitToLast(1).on("child_added", (snap) => {
+      const prayer = snap.val();
+      showPrayer(prayer.icon, prayer.text);
     });
 
-    // Prevent double-tap zoom anywhere
-    (function preventDoubleTapZoom(){
-      let lastTouch = 0;
-      document.addEventListener('touchend', function(e){
-        const now = Date.now();
-        if (now - lastTouch <= 300) e.preventDefault();
-        lastTouch = now;
-      }, {passive:false});
-    })();
-
-    // Only show NEW prayers (no initial flood) using server time offset
-    let serverOffset = 0;
-    firebase.database().ref(".info/serverTimeOffset").once("value").then(snap => {
-      serverOffset = snap.val() || 0;
-      const approxServerNow = Date.now() + serverOffset + 1;
-
-      db.ref("prayers")
-        .orderByChild("timestamp")
-        .startAt(approxServerNow)
-        .on("child_added", (snapshot) => {
-          const p = snapshot.val();
-          showPrayer(p.icon, p.text || "");
-        });
-    });
-
-    // Floating emote + message; never off-screen
+    // Floating prayers inside image container
     function showPrayer(icon, text) {
+      const container = document.getElementById('image-container');
       const el = document.createElement('div');
       el.className = 'prayer';
-      el.textContent = text ? (icon + ' ' + text) : icon;
-      el.style.visibility = 'hidden';
-      document.body.appendChild(el);
+      el.textContent = text ? (icon + " " + text) : icon;
 
-      const maxLeft = window.innerWidth - el.offsetWidth - 14;
-      const left = Math.max(7, Math.min(maxLeft, Math.random() * maxLeft));
+      el.style.visibility = 'hidden';
+      container.appendChild(el);
+
+      const maxLeft = container.clientWidth - el.offsetWidth - 10;
+      const maxTop = container.clientHeight - el.offsetHeight - 10;
+      const left = Math.max(5, Math.random() * maxLeft);
+      const top = Math.max(5, Math.random() * maxTop);
+
       el.style.left = left + 'px';
+      el.style.top = top + 'px';
       el.style.visibility = 'visible';
 
       setTimeout(() => el.remove(), 4000);
     }
 
-    /* =======================
-       Carousel: auto + swipe
-       ======================= */
-    const container = document.getElementById('image-container');
-    const images = Array.from(container.querySelectorAll('img'));
+    // Image slider auto + swipe
+    const images = document.querySelectorAll('.slider-image');
     let current = 0;
-
-    function showImage(i) {
-      images.forEach((img, idx) => img.classList.toggle('active', idx === i));
-    }
+    setInterval(nextImage, 5000);
     function nextImage() {
+      images[current].classList.remove('active');
       current = (current + 1) % images.length;
-      showImage(current);
+      images[current].classList.add('active');
     }
-    function prevImage() {
-      current = (current - 1 + images.length) % images.length;
-      showImage(current);
-    }
+    let startX = 0;
+    document.getElementById('image-container').addEventListener('touchstart', e => {
+      startX = e.touches[0].clientX;
+    });
+    document.getElementById('image-container').addEventListener('touchend', e => {
+      const endX = e.changedTouches[0].clientX;
+      if (startX - endX > 50) { nextImage(); }
+      else if (endX - startX > 50) {
+        images[current].classList.remove('active');
+        current = (current - 1 + images.length) % images.length;
+        images[current].classList.add('active');
+      }
+    });
 
-    // Auto cycle every 5s
-    let autoTimer = setInterval(nextImage, 5000);
-
-    // Swipe (touch) + drag (mouse) support
-    let startX = null, dragging = false;
-
-    function startDrag(x) {
-      clearInterval(autoTimer);
-      startX = x; dragging = true;
-    }
-    function endDrag(x) {
-      if (!dragging) return;
-      const dx = x - startX;
-      if (dx < -50) nextImage();
-      else if (dx > 50) prevImage();
-      dragging = false;
-      autoTimer = setInterval(nextImage, 5000);
-    }
-
-    // Touch
-    container.addEventListener('touchstart', e => startDrag(e.touches[0].clientX), {passive:true});
-    container.addEventListener('touchend',   e => endDrag(e.changedTouches[0].clientX), {passive:true});
-
-    // Mouse (desktop)
-    container.addEventListener('mousedown', e => startDrag(e.clientX));
-    window.addEventListener('mouseup',      e => endDrag(e.clientX));
-
-    /* =======================
-       Since 13 Aug 2025 timer
-       ======================= */
-    const timerEl = document.getElementById('timer');
-    const startDate = new Date('2025-08-13T07:45:00');
-
-    function updateTimer() {
+    // Time since Aug 13, 2025, 7:45 am
+    const eventDate = new Date("2025-08-13T07:45:00Z");
+    function updateTime() {
       const now = new Date();
-      let diff = now - startDate;
+      let diff = Math.floor((now - eventDate) / 1000);
       if (diff < 0) diff = 0;
 
-      // break down carefully
-      const secTotal = Math.floor(diff / 1000);
-      let s = secTotal;
+      const years = Math.floor(diff / (365*24*3600));
+      diff %= 365*24*3600;
+      const months = Math.floor(diff / (30*24*3600));
+      diff %= 30*24*3600;
+      const weeks = Math.floor(diff / (7*24*3600));
+      diff %= 7*24*3600;
+      const days = Math.floor(diff / (24*3600));
+      diff %= 24*3600;
+      const hours = Math.floor(diff / 3600);
+      diff %= 3600;
+      const minutes = Math.floor(diff / 60);
+      const seconds = diff % 60;
 
-      const years = Math.floor(s / (365 * 24 * 3600)); s %= (365 * 24 * 3600);
-      const months = Math.floor(s / (30 * 24 * 3600)); s %= (30 * 24 * 3600);
-      const days = Math.floor(s / (24 * 3600));        s %= (24 * 3600);
-      const hours = Math.floor(s / 3600);              s %= 3600;
-      const minutes = Math.floor(s / 60);
-      const seconds = s % 60;
+      let text = "";
+      if (years) text += years+"y ";
+      if (months) text += months+"m ";
+      if (weeks) text += weeks+"w ";
+      if (days) text += days+"d ";
+      text += hours+"h "+minutes+"m "+seconds+"s";
 
-      let parts = [];
-      if (years > 0) parts.push(years + 'y');
-      if (months > 0 || years > 0) parts.push(months + 'm');
-      if (days > 0 || months > 0 || years > 0) parts.push(days + 'd');
-      parts.push(hours + 'h', minutes + 'm', seconds + 's');
-
-      timerEl.textContent = parts.join(' ');
+      document.getElementById('time-since').textContent = text;
     }
-    updateTimer();
-    setInterval(updateTimer, 1000);
+    setInterval(updateTime,1000);
+    updateTime();
   </script>
 </body>
 </html>
