@@ -1,142 +1,194 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta charset="UTF-8" />
+
+  <!-- Lock layout on mobile; disable zooming -->
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+
   <title>Memorial Prayers</title>
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon-32x32.png">
-  
+  <!-- Favicon (you can replace the path/filenames you generated) -->
+  <link rel="icon" type="image/png" href="icons8-bmw-100.png">
+
   <style>
-    /* --- Global Styles --- */
-    html, body {
-      margin: 0;
-      padding: 0;
-      overflow: hidden; /* Prevent scrolling */
-      background: black;
-      color: white;
+    /* ---------- Minimal reset for cross-browser consistency ---------- */
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; margin: 0; }
+
+    /* Prevent scrolling entirely */
+    html, body { overflow: hidden; touch-action: manipulation; background:#000; color:#fff; }
+
+    body {
       font-family: Arial, sans-serif;
-      text-align: center;
+      display: grid;
+      /* Layout: [carousel] [UI (hint, title, input, button, timer)] */
+      grid-template-rows: minmax(44vh, 48vh) auto 1fr; /* stays one screen */
+      align-items: start;
+      justify-items: center;
+      user-select: none;
       -webkit-user-select: none;
       -webkit-touch-callout: none;
-      user-select: none;
-      height: 100%;
-      width: 100%;
+      gap: 10px;
     }
 
-    h1 {
-      margin: 10px 0 6px 0;
-      font-size: 24px;
-      z-index: 2;
+    /* ---------- Carousel ---------- */
+    .carousel {
       position: relative;
-    }
-
-    /* --- Slideshow container --- */
-    #slideshow {
-      position: relative;
-      width: 100%;
-      height: 55%; /* upper section reserved for images */
+      width: 92vw;
+      max-width: 560px;
+      height: 44vh;             /* fixed viewport height, no page scroll */
+      border-radius: 14px;
       overflow: hidden;
+      background:#111;
     }
-
     .slide {
       position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 600ms ease;     /* fade */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .slide img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
-      opacity: 0;
-      transition: opacity 1s ease-in-out;
+      object-fit: cover;         /* fills without distorting */
     }
-
-    .slide.active {
-      opacity: 1;
-      z-index: 1;
-    }
-
-    #hint-text {
-      margin-top: 4px;
+    .slide.active { opacity: 1; }
+    .hint {
+      position: absolute;
+      left: 50%;
+      top: 10px;
+      transform: translateX(-50%);
       font-size: 14px;
-      color: #bbb;
-      position: relative;
-      z-index: 2;
+      color: #ccc;
+      text-shadow: 0 1px 2px #000;
+      pointer-events: none;
     }
 
-    /* --- Prayer input --- */
+    /* Container over the images for emotes/messages */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    /* ---------- UI below the images ---------- */
+    h1 {
+      margin: 0;
+      font-size: clamp(24px, 5vw, 36px);
+      font-weight: 700;
+    }
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr;
+      width: 92vw;
+      max-width: 560px;
+      gap: 10px;
+      justify-items: center;
+    }
     #prayerMessage {
-      margin: 8px auto;
-      padding: 8px;
+      width: 100%;
+      max-width: 560px;
+      padding: 10px 12px;
       font-size: 16px;
-      border-radius: 4px;
+      border-radius: 6px;
       border: none;
-      width: 70%;
-      max-width: 300px;
-      display: block;
+      outline: none;
+      background: #fff;
+      color: #000;
     }
-
     button {
-      padding: 8px 16px;
-      font-size: 15px;
-      border-radius: 4px;
+      padding: 10px 18px;
+      font-size: 16px;
+      border-radius: 6px;
       border: none;
-      background-color: #444;
-      color: white;
+      background: #444;
+      color: #fff;
       cursor: pointer;
-      margin-top: 5px;
+    }
+    button:active { transform: scale(0.98); }
+
+    .since {
+      font-size: 14px;
+      color: #cfcfcf;
     }
 
-    /* --- Floating prayer animation --- */
+    /* ---------- Floating prayer/emote ---------- */
     .prayer {
       position: absolute;
       font-size: 28px;
       white-space: nowrap;
-      pointer-events: none;
+      text-shadow: 0 0 6px rgba(255,255,255,0.8);
       animation: floatUp 5s linear forwards;
-      text-shadow: 0 0 6px white;
-      z-index: 5; /* Ensure above images */
+      pointer-events: none;
     }
-
     @keyframes floatUp {
-      0% { opacity: 1; transform: translateY(0); }
-      100% { opacity: 0; transform: translateY(-200px); }
-    }
-
-    /* --- Timer --- */
-    #timer {
-      margin-top: 6px;
-      font-size: 14px;
-      color: #ccc;
-      z-index: 2;
-      position: relative;
+      0%   { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-220px); }
     }
   </style>
 </head>
 <body>
 
-  <!-- Image Slideshow -->
-  <div id="slideshow">
-    <img src="BB2F7C16-F5F3-409C-9B3E-7E6055202864.jpeg" class="slide active" alt="Memorial Image 1">
-    <img src="01d42466-ca15-4225-9097-8794742f4f17.jpeg" class="slide" alt="Memorial Image 2">
-    <img src="05994bd7-e3f1-49f4-aa2d-a537af544243.jpeg" class="slide" alt="Memorial Image 3">
-  </div>
+  <!-- ===== Carousel ===== -->
+  <section class="carousel" id="carousel" aria-label="Memorial images (swipe left/right)">
+    <div class="hint">Swipe left or right to see more</div>
 
-  <div id="hint-text">Swipe left or right to see more</div>
-  
-  <!-- Main heading -->
-  <h1>Send Your Prayers</h1>
-  
-  <!-- Prayer input and button -->
-  <input type="text" id="prayerMessage" maxlength="50" placeholder="Write your message...">
-  <button id="sendPrayerBtn">Send a Prayer</button>
+    <!-- Slides (Image 1/2/3) -->
+    <div class="slide active"><img src="BB2F7C16-F5F3-409C-9B3E-7E6055202864.jpeg" alt=""></div>
+    <div class="slide"><img src="01d42466-ca15-4225-9097-8794742f4f17.jpeg" alt=""></div>
+    <div class="slide"><img src="05994bd7-e3f1-49f4-aa2d-a537af544243.jpeg" alt=""></div>
 
-  <!-- Timer display -->
-  <div id="timer"></div>
+    <!-- Overlay where emotes/messages appear -->
+    <div class="overlay" id="overlay"></div>
+  </section>
 
-  <!-- Firebase Core + Realtime Database -->
+  <!-- ===== Controls ===== -->
+  <section class="controls" aria-label="Send your prayers">
+    <h1>Send Your Prayers</h1>
+    <input id="prayerMessage" maxlength="50" placeholder="Write your message..." autocomplete="off" />
+    <button id="sendBtn" type="button">Send a Prayer</button>
+    <div class="since" id="sinceTimer">…</div>
+  </section>
+
+  <!-- Firebase v8 (realtime DB) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
   <script>
-    /* --- Firebase configuration --- */
+    /* =========================
+       0) Anti-zoom & anti-scroll
+       ========================= */
+    // Additional iOS double-tap guard
+    (function(){
+      let lastTouchEnd = 0;
+      document.addEventListener('touchend', function(e) {
+        const now = Date.now();
+        if (now - lastTouchEnd <= 350) e.preventDefault();
+        lastTouchEnd = now;
+      }, { passive:false });
+
+      // Prevent accidental page scroll
+      document.addEventListener('touchmove', function(e){
+        // Allow horizontal swipe inside carousel only; block vertical page scroll everywhere
+        const el = e.target.closest('#carousel');
+        if (el) {
+          // If movement is mostly vertical, prevent it to keep page locked
+          if (Math.abs(e.touches[0].clientY - (el._startY||0)) > Math.abs(e.touches[0].clientX - (el._startX||0))) {
+            e.preventDefault();
+          }
+        } else {
+          e.preventDefault();
+        }
+      }, { passive:false });
+    })();
+
+    /* =========================
+       1) Firebase init
+       ========================= */
     const firebaseConfig = {
       apiKey: "AIzaSyBAj8Gw4kjzjJpADNKIAi3YCJ8w3sRPNcU",
       authDomain: "az-memorial.firebaseapp.com",
@@ -149,91 +201,155 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    /* --- Prayer sending --- */
-    document.getElementById("sendPrayerBtn").addEventListener("click", () => {
-      let message = document.getElementById("prayerMessage").value.trim();
-      if (!message) {
-        // if empty, send only an icon
-        message = "";
-      }
-      const prayer = {
-        text: message,
-        icon: Math.random() > 0.5 ? "🙏" : "🕊️",
-        timestamp: Date.now()
-      };
-      db.ref("prayers").push(prayer);
-      document.getElementById("prayerMessage").value = "";
-    });
+    /* =========================
+       2) Carousel: autoplay + swipe
+       ========================= */
+    const slides   = Array.from(document.querySelectorAll('.slide'));
+    const overlay  = document.getElementById('overlay');
+    const carousel = document.getElementById('carousel');
+    let idx = 0;
+    let autoTimer = null;
 
-    /* --- Show new prayers in realtime --- */
-    db.ref("prayers").limitToLast(1).on("child_added", snapshot => {
-      const prayer = snapshot.val();
-      showPrayerOnScreen(prayer.icon, prayer.text);
-    });
-
-    function showPrayerOnScreen(icon, text) {
-      const el = document.createElement("div");
-      el.className = "prayer";
-      el.innerHTML = `${icon} ${text}`;
-      const x = Math.random() * (window.innerWidth - 150);
-      const y = window.innerHeight * 0.45; // ensure over images
-      el.style.left = `${x}px`;
-      el.style.top = `${y}px`;
-      document.body.appendChild(el);
-      setTimeout(() => el.remove(), 5000);
+    function showSlide(n){
+      slides[idx].classList.remove('active');
+      idx = (n + slides.length) % slides.length;
+      slides[idx].classList.add('active');
     }
 
-    /* --- Slideshow: auto + swipe --- */
-    const slides = document.querySelectorAll(".slide");
-    let currentIndex = 0;
-    function showSlide(index) {
-      slides.forEach((slide, i) => slide.classList.toggle("active", i === index));
+    function nextSlide(){ showSlide(idx + 1); }
+    function prevSlide(){ showSlide(idx - 1); }
+
+    function startAuto(){
+      stopAuto();
+      autoTimer = setInterval(nextSlide, 5000); // 5s cycle
     }
-    setInterval(() => {
-      currentIndex = (currentIndex + 1) % slides.length;
-      showSlide(currentIndex);
-    }, 5000);
+    function stopAuto(){
+      if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+    }
+    startAuto();
 
-    let startX = 0;
-    document.getElementById("slideshow").addEventListener("touchstart", e => {
-      startX = e.touches[0].clientX;
-    });
-    document.getElementById("slideshow").addEventListener("touchend", e => {
-      let endX = e.changedTouches[0].clientX;
-      if (startX - endX > 50) {
-        currentIndex = (currentIndex + 1) % slides.length;
-        showSlide(currentIndex);
-      } else if (endX - startX > 50) {
-        currentIndex = (currentIndex - 1 + slides.length) % slides.length;
-        showSlide(currentIndex);
-      }
-    });
+    // Swipe handling
+    (function(){
+      let startX=0, startY=0, dragging=false;
+      carousel.addEventListener('touchstart', (e)=>{
+        const t=e.touches[0];
+        startX=t.clientX; startY=t.clientY;
+        carousel._startX = startX; carousel._startY = startY; // used in move lock
+        dragging=true; stopAuto();
+      }, {passive:true});
 
-    /* --- Timer since passing --- */
-    const startDate = new Date("2025-08-13T07:45:00"); // August 13, 2025, 07:45
-    function updateTimer() {
+      carousel.addEventListener('touchend', (e)=>{
+        dragging=false; startAuto();
+      });
+
+      carousel.addEventListener('touchmove', (e)=>{
+        if(!dragging) return;
+        const t=e.touches[0];
+        const dx=t.clientX - startX;
+        const dy=t.clientY - startY;
+        if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+          dx < 0 ? nextSlide() : prevSlide();
+          dragging=false;
+        }
+      }, {passive:false});
+
+      // Optional mouse swipe (desktop)
+      let mdown=false, mx=0;
+      carousel.addEventListener('mousedown', (e)=>{ mdown=true; mx=e.clientX; stopAuto(); });
+      document.addEventListener('mouseup', ()=>{ if(mdown){ mdown=false; startAuto(); }});
+      document.addEventListener('mousemove', (e)=>{
+        if(!mdown) return;
+        const dx=e.clientX - mx;
+        if (Math.abs(dx)>50){ dx<0?nextSlide():prevSlide(); mdown=false; }
+      });
+    })();
+
+    /* =========================
+       3) Since timer (Aug 13, 2025 07:45)
+       ========================= */
+    const sinceEl = document.getElementById('sinceTimer');
+    const origin = new Date(Date.UTC(2025, 7, 13, 7, 45, 0)); // months 0-indexed; 7 = August
+    function updateSince(){
       const now = new Date();
-      let diff = now - startDate;
-      if (diff < 0) diff = 0;
+      let diff = Math.max(0, now - origin);
 
-      const sec = Math.floor(diff / 1000) % 60;
-      const min = Math.floor(diff / (1000*60)) % 60;
-      const hrs = Math.floor(diff / (1000*60*60)) % 24;
-      const days = Math.floor(diff / (1000*60*60*24)) % 7;
-      const weeks = Math.floor(diff / (1000*60*60*24*7)) % 4;
-      const months = Math.floor(diff / (1000*60*60*24*30)) % 12;
-      const years = Math.floor(diff / (1000*60*60*24*365));
+      const sec = 1000, min = 60*sec, hr = 60*min, day = 24*hr, wk = 7*day;
+      const years = Math.floor(diff / (365.2425*day)); // astronomical year
+      diff -= years * 365.2425*day;
+      const months = Math.floor(diff / (30.436875*day)); // avg month
+      diff -= months * 30.436875*day;
+      const weeks = Math.floor(diff / wk); diff -= weeks * wk;
+      const days  = Math.floor(diff / day); diff -= days * day;
+      const hours = Math.floor(diff / hr);  diff -= hours * hr;
+      const mins  = Math.floor(diff / min); diff -= mins * min;
+      const secs  = Math.floor(diff / sec);
 
-      let display = "";
-      if (years > 0) display += years + "y ";
-      if (months > 0 || years > 0) display += months + "m ";
-      if (weeks > 0 || months > 0 || years > 0) display += weeks + "w ";
-      display += days + "d " + hrs + "h " + min + "m " + sec + "s";
-
-      document.getElementById("timer").textContent = display;
+      // Show larger units only when non-zero (your requirement)
+      const parts = [];
+      if (years)  parts.push(`${years}y`);
+      if (months) parts.push(`${months}mo`);
+      if (weeks)  parts.push(`${weeks}w`);
+      if (days)   parts.push(`${days}d`);
+      parts.push(`${hours}h ${mins}m ${secs}s`);
+      sinceEl.textContent = parts.join(' ');
     }
-    setInterval(updateTimer, 1000);
-    updateTimer();
+    updateSince();
+    setInterval(updateSince, 1000);
+
+    /* =========================
+       4) Realtime prayers (safe; new only)
+       ========================= */
+    const sendBtn = document.getElementById('sendBtn');
+    const input   = document.getElementById('prayerMessage');
+
+    const EMOTES = ['🙏','🕊️','🕯️','💖','💐','🪽','🕊️','💞','🌟','🤍'];
+
+    // Only display NEW entries after page load
+    const loadCutoff = Date.now() + 500; // slight buffer
+    const prayersRef = db.ref('prayers');
+
+    prayersRef.orderByChild('timestamp').startAt(loadCutoff).on('child_added', snap => {
+      const p = snap.val();
+      showPrayerOnOverlay(p.icon, p.text || '');
+    });
+
+    // Send prayer (if empty -> random emote). We render ONLY after Firebase echoes back via listener above.
+    function sendPrayer() {
+      const message = (input.value || '').trim();
+      const icon = message ? '🙏' : EMOTES[Math.floor(Math.random()*EMOTES.length)];
+      prayersRef.push({
+        text: message,                   // may be empty
+        icon,
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+      });
+      input.value = '';
+    }
+    sendBtn.addEventListener('click', sendPrayer);
+    // Enter key
+    input.addEventListener('keydown', (e)=>{ if(e.key === 'Enter'){ e.preventDefault(); sendPrayer(); } });
+
+    /* Where emotes/messages appear: inside the overlay, over the active slide */
+    function showPrayerOnOverlay(icon, text){
+      const activeSlide = slides[idx];
+      const rect = activeSlide.getBoundingClientRect();
+
+      const el = document.createElement('div');
+      el.className = 'prayer';
+      el.innerHTML = icon + (text ? ' ' + text : '');
+
+      // Random horizontal position inside the slide (with 12px padding)
+      const xPad = 12;
+      const randX = Math.random() * (rect.width - 120) + xPad;
+      // Start near the lower third of the image, but inside bounds
+      const startY = rect.height * 0.75;
+
+      el.style.left = randX + 'px';
+      el.style.top  = startY + 'px';
+
+      overlay.appendChild(el);
+      // Remove after animation
+      setTimeout(()=> el.remove(), 5200);
+    }
   </script>
 </body>
 </html>
