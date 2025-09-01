@@ -4,30 +4,43 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Memorial Prayers</title>
-  <link rel="icon" type="image/png" href="icons8-bmw-100.png">
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon-32x32.png">
+  
   <style>
-    body {
+    /* --- Global Styles --- */
+    html, body {
       margin: 0;
-      overflow: hidden;
+      padding: 0;
+      overflow: hidden; /* Prevent scrolling */
       background: black;
       color: white;
       font-family: Arial, sans-serif;
+      text-align: center;
       -webkit-user-select: none;
       -webkit-touch-callout: none;
       user-select: none;
+      height: 100%;
+      width: 100%;
     }
 
-    #image-container {
+    h1 {
+      margin: 10px 0 6px 0;
+      font-size: 24px;
+      z-index: 2;
+      position: relative;
+    }
+
+    /* --- Slideshow container --- */
+    #slideshow {
       position: relative;
       width: 100%;
-      height: 60vh;
+      height: 55%; /* upper section reserved for images */
       overflow: hidden;
     }
 
     .slide {
       position: absolute;
-      top: 0;
-      left: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -41,30 +54,23 @@
     }
 
     #hint-text {
-      text-align: center;
-      margin-top: 8px;
+      margin-top: 4px;
       font-size: 14px;
       color: #bbb;
+      position: relative;
+      z-index: 2;
     }
 
-    h1 {
-      margin: 8px 0 4px 0;
-      font-size: 22px;
-      text-align: center;
-    }
-
-    #controls {
-      text-align: center;
-      margin-top: 6px;
-    }
-
+    /* --- Prayer input --- */
     #prayerMessage {
+      margin: 8px auto;
       padding: 8px;
-      font-size: 15px;
+      font-size: 16px;
       border-radius: 4px;
       border: none;
-      width: 65%;
-      max-width: 280px;
+      width: 70%;
+      max-width: 300px;
+      display: block;
     }
 
     button {
@@ -75,16 +81,10 @@
       background-color: #444;
       color: white;
       cursor: pointer;
-      margin-left: 6px;
+      margin-top: 5px;
     }
 
-    #timer {
-      text-align: center;
-      font-size: 15px;
-      margin-top: 4px;
-      color: #ccc;
-    }
-
+    /* --- Floating prayer animation --- */
     .prayer {
       position: absolute;
       font-size: 28px;
@@ -92,35 +92,51 @@
       pointer-events: none;
       animation: floatUp 5s linear forwards;
       text-shadow: 0 0 6px white;
-      z-index: 2;
+      z-index: 5; /* Ensure above images */
     }
 
     @keyframes floatUp {
       0% { opacity: 1; transform: translateY(0); }
       100% { opacity: 0; transform: translateY(-200px); }
     }
+
+    /* --- Timer --- */
+    #timer {
+      margin-top: 6px;
+      font-size: 14px;
+      color: #ccc;
+      z-index: 2;
+      position: relative;
+    }
   </style>
 </head>
 <body>
 
-  <div id="image-container">
-    <img src="BB2F7C16-F5F3-409C-9B3E-7E6055202864.jpeg" class="slide active">
-    <img src="01d42466-ca15-4225-9097-8794742f4f17.jpeg" class="slide">
-    <img src="05994bd7-e3f1-49f4-aa2d-a537af544243.jpeg" class="slide">
+  <!-- Image Slideshow -->
+  <div id="slideshow">
+    <img src="BB2F7C16-F5F3-409C-9B3E-7E6055202864.jpeg" class="slide active" alt="Memorial Image 1">
+    <img src="01d42466-ca15-4225-9097-8794742f4f17.jpeg" class="slide" alt="Memorial Image 2">
+    <img src="05994bd7-e3f1-49f4-aa2d-a537af544243.jpeg" class="slide" alt="Memorial Image 3">
   </div>
-  <div id="hint-text">Swipe or wait to see more</div>
 
+  <div id="hint-text">Swipe left or right to see more</div>
+  
+  <!-- Main heading -->
   <h1>Send Your Prayers</h1>
-  <div id="controls">
-    <input type="text" id="prayerMessage" maxlength="50" placeholder="Write your message...">
-    <button onclick="sendPrayer()">Send</button>
-  </div>
+  
+  <!-- Prayer input and button -->
+  <input type="text" id="prayerMessage" maxlength="50" placeholder="Write your message...">
+  <button id="sendPrayerBtn">Send a Prayer</button>
+
+  <!-- Timer display -->
   <div id="timer"></div>
 
-  <!-- Firebase -->
+  <!-- Firebase Core + Realtime Database -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
   <script>
+    /* --- Firebase configuration --- */
     const firebaseConfig = {
       apiKey: "AIzaSyBAj8Gw4kjzjJpADNKIAi3YCJ8w3sRPNcU",
       authDomain: "az-memorial.firebaseapp.com",
@@ -133,100 +149,91 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // --- Image Slider ---
-    const slides = document.querySelectorAll('.slide');
-    let current = 0;
-    function showSlide(index) {
-      slides.forEach((slide, i) => {
-        slide.classList.toggle('active', i === index);
-      });
-    }
-    setInterval(() => {
-      current = (current + 1) % slides.length;
-      showSlide(current);
-    }, 5000);
-
-    // Swipe support
-    let startX = 0;
-    document.getElementById('image-container').addEventListener('touchstart', e => {
-      startX = e.touches[0].clientX;
-    });
-    document.getElementById('image-container').addEventListener('touchend', e => {
-      let endX = e.changedTouches[0].clientX;
-      if (endX < startX - 30) { current = (current + 1) % slides.length; }
-      if (endX > startX + 30) { current = (current - 1 + slides.length) % slides.length; }
-      showSlide(current);
-    });
-
-    // --- Prayer Send ---
-    function sendPrayer() {
-      const input = document.getElementById("prayerMessage");
-      const text = input.value.trim();
-      const icon = Math.random() > 0.5 ? "🙏" : "🕊️";
-      const prayer = { text: text || "", icon: icon, timestamp: Date.now() };
-      db.ref("prayers").push(prayer);
-      input.value = "";
-    }
-
-    const pageLoadTime = Date.now();
-    db.ref("prayers").on("child_added", snapshot => {
-      const p = snapshot.val();
-      if (p.timestamp && p.timestamp >= pageLoadTime) {
-        showPrayerOnScreen(p.icon, p.text);
+    /* --- Prayer sending --- */
+    document.getElementById("sendPrayerBtn").addEventListener("click", () => {
+      let message = document.getElementById("prayerMessage").value.trim();
+      if (!message) {
+        // if empty, send only an icon
+        message = "";
       }
+      const prayer = {
+        text: message,
+        icon: Math.random() > 0.5 ? "🙏" : "🕊️",
+        timestamp: Date.now()
+      };
+      db.ref("prayers").push(prayer);
+      document.getElementById("prayerMessage").value = "";
+    });
+
+    /* --- Show new prayers in realtime --- */
+    db.ref("prayers").limitToLast(1).on("child_added", snapshot => {
+      const prayer = snapshot.val();
+      showPrayerOnScreen(prayer.icon, prayer.text);
     });
 
     function showPrayerOnScreen(icon, text) {
       const el = document.createElement("div");
       el.className = "prayer";
       el.innerHTML = `${icon} ${text}`;
-      const container = document.getElementById("image-container");
-      const x = Math.random() * (container.offsetWidth - 150);
-      const y = container.offsetHeight - 100;
+      const x = Math.random() * (window.innerWidth - 150);
+      const y = window.innerHeight * 0.45; // ensure over images
       el.style.left = `${x}px`;
       el.style.top = `${y}px`;
-      container.appendChild(el);
+      document.body.appendChild(el);
       setTimeout(() => el.remove(), 5000);
     }
 
-    // --- Timer since 13 Aug 2025 07:45 ---
+    /* --- Slideshow: auto + swipe --- */
+    const slides = document.querySelectorAll(".slide");
+    let currentIndex = 0;
+    function showSlide(index) {
+      slides.forEach((slide, i) => slide.classList.toggle("active", i === index));
+    }
+    setInterval(() => {
+      currentIndex = (currentIndex + 1) % slides.length;
+      showSlide(currentIndex);
+    }, 5000);
+
+    let startX = 0;
+    document.getElementById("slideshow").addEventListener("touchstart", e => {
+      startX = e.touches[0].clientX;
+    });
+    document.getElementById("slideshow").addEventListener("touchend", e => {
+      let endX = e.changedTouches[0].clientX;
+      if (startX - endX > 50) {
+        currentIndex = (currentIndex + 1) % slides.length;
+        showSlide(currentIndex);
+      } else if (endX - startX > 50) {
+        currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+        showSlide(currentIndex);
+      }
+    });
+
+    /* --- Timer since passing --- */
+    const startDate = new Date("2025-08-13T07:45:00"); // August 13, 2025, 07:45
     function updateTimer() {
-      const start = new Date('2025-08-13T07:45:00').getTime();
-      const now = Date.now();
-      let diff = now - start;
+      const now = new Date();
+      let diff = now - startDate;
       if (diff < 0) diff = 0;
 
-      const seconds = Math.floor(diff / 1000) % 60;
-      const minutes = Math.floor(diff / (1000*60)) % 60;
-      const hours = Math.floor(diff / (1000*60*60)) % 24;
+      const sec = Math.floor(diff / 1000) % 60;
+      const min = Math.floor(diff / (1000*60)) % 60;
+      const hrs = Math.floor(diff / (1000*60*60)) % 24;
       const days = Math.floor(diff / (1000*60*60*24)) % 7;
       const weeks = Math.floor(diff / (1000*60*60*24*7)) % 4;
-      const months = Math.floor(diff / (1000*60*60*24*30.44)) % 12;
-      const years = Math.floor(diff / (1000*60*60*24*365.25));
+      const months = Math.floor(diff / (1000*60*60*24*30)) % 12;
+      const years = Math.floor(diff / (1000*60*60*24*365));
 
-      let out = "";
-      if (years > 0) out += years + "y ";
-      if (months > 0) out += months + "m ";
-      if (weeks > 0) out += weeks + "w ";
-      if (days > 0) out += days + "d ";
-      out += `${hours}h ${minutes}m ${seconds}s`;
+      let display = "";
+      if (years > 0) display += years + "y ";
+      if (months > 0 || years > 0) display += months + "m ";
+      if (weeks > 0 || months > 0 || years > 0) display += weeks + "w ";
+      display += days + "d " + hrs + "h " + min + "m " + sec + "s";
 
-      document.getElementById("timer").textContent = out.trim();
+      document.getElementById("timer").textContent = display;
     }
     setInterval(updateTimer, 1000);
     updateTimer();
-  </script>
-
-  <!-- Prevent double-tap zoom -->
-  <script>
-    let lastTouch = 0;
-    document.addEventListener('touchend', function (e) {
-      const now = new Date().getTime();
-      if (now - lastTouch <= 400) {
-        e.preventDefault();
-      }
-      lastTouch = now;
-    }, { passive: false });
   </script>
 </body>
 </html>
