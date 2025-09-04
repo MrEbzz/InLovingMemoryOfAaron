@@ -1,29 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-
+  <meta charset="UTF-8">
   <!-- Lock layout on mobile; disable zooming -->
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>Memorial Prayers</title>
-  <!-- Favicon (you can replace the path/filenames you generated) -->
   <link rel="icon" type="image/png" href="icons8-bmw-100.png">
 
   <style>
-    /* ---------- Minimal reset for cross-browser consistency ---------- */
+    /* ---------- Minimal reset ---------- */
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    html, body { height: 100%; margin: 0; }
-
-    /* Prevent scrolling entirely */
-    html, body { overflow: hidden; touch-action: manipulation; background:#000; color:#fff; }
+    html, body { height: 100%; margin: 0; overflow: hidden; touch-action: manipulation; background:#000; color:#fff; }
 
     body {
       font-family: Arial, sans-serif;
       display: grid;
-      /* Layout: [carousel] [UI (hint, title, input, button, timer)] */
-      grid-template-rows: minmax(44vh, 48vh) auto 1fr; /* stays one screen */
+      grid-template-rows: minmax(44vh, 48vh) auto 1fr; /* images area + controls */
       align-items: start;
       justify-items: center;
       user-select: none;
@@ -37,7 +29,7 @@
       position: relative;
       width: 92vw;
       max-width: 560px;
-      height: 44vh;             /* fixed viewport height, no page scroll */
+      height: 44vh;
       border-radius: 14px;
       overflow: hidden;
       background:#111;
@@ -46,7 +38,7 @@
       position: absolute;
       inset: 0;
       opacity: 0;
-      transition: opacity 600ms ease;     /* fade */
+      transition: opacity 600ms ease;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -54,9 +46,10 @@
     .slide img {
       width: 100%;
       height: 100%;
-      object-fit: cover;         /* fills without distorting */
+      object-fit: cover;  /* fill nicely, no distortion */
     }
     .slide.active { opacity: 1; }
+
     .hint {
       position: absolute;
       left: 50%;
@@ -66,20 +59,18 @@
       color: #ccc;
       text-shadow: 0 1px 2px #000;
       pointer-events: none;
+      z-index: 2;
     }
 
-    /* Container over the images for emotes/messages */
-    .overlay {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-    }
+    /* Where emotes/messages float (over the image) */
+    .overlay { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
 
-    /* ---------- UI below the images ---------- */
+    /* ---------- Controls ---------- */
     h1 {
       margin: 0;
       font-size: clamp(24px, 5vw, 36px);
       font-weight: 700;
+      text-align: center;
     }
     .controls {
       display: grid;
@@ -93,7 +84,7 @@
       width: 100%;
       max-width: 560px;
       padding: 10px 12px;
-      font-size: 16px;
+      font-size: 16px;           /* avoids iOS zoom on focus */
       border-radius: 6px;
       border: none;
       outline: none;
@@ -114,7 +105,25 @@
     .since {
       font-size: 14px;
       color: #cfcfcf;
+      text-align: center;
     }
+
+    /* Charity block */
+    .charity {
+      margin-top: 12px;
+      font-size: 14px;
+      opacity: 0.9;  /* 90% text opacity */
+      text-align: center;
+      max-width: 560px;
+      line-height: 1.4;
+    }
+    .charity a {
+      color: #ff69b4; /* pink link fully visible */
+      opacity: 1;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .charity a:hover { text-decoration: underline; }
 
     /* ---------- Floating prayer/emote ---------- */
     .prayer {
@@ -149,12 +158,18 @@
   <!-- ===== Controls ===== -->
   <section class="controls" aria-label="Send your prayers">
     <h1>Send Your Prayers</h1>
-    <input id="prayerMessage" maxlength="50" placeholder="Write your message..." autocomplete="off" />
+    <input id="prayerMessage" maxlength="50" placeholder="Write your message..." autocomplete="off">
     <button id="sendBtn" type="button">Send a Prayer</button>
     <div class="since" id="sinceTimer">…</div>
+
+    <!-- Charity donation link (new) -->
+    <div class="charity">
+      In memory of Aaron, donations can be made to
+      <a href="https://andysmanclub.co.uk" target="_blank" rel="noopener">Andy’s Man Club</a>.
+    </div>
   </section>
 
-  <!-- Firebase v8 (realtime DB) -->
+  <!-- Firebase v8 (Realtime DB) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -162,8 +177,8 @@
     /* =========================
        0) Anti-zoom & anti-scroll
        ========================= */
-    // Additional iOS double-tap guard
     (function(){
+      // Block double-tap zoom
       let lastTouchEnd = 0;
       document.addEventListener('touchend', function(e) {
         const now = Date.now();
@@ -171,13 +186,15 @@
         lastTouchEnd = now;
       }, { passive:false });
 
-      // Prevent accidental page scroll
+      // Block pinch zoom (iOS)
+      document.addEventListener('gesturestart', function(e){ e.preventDefault(); });
+
+      // Prevent vertical page scroll; allow horizontal swipe inside carousel
       document.addEventListener('touchmove', function(e){
-        // Allow horizontal swipe inside carousel only; block vertical page scroll everywhere
         const el = e.target.closest('#carousel');
         if (el) {
-          // If movement is mostly vertical, prevent it to keep page locked
-          if (Math.abs(e.touches[0].clientY - (el._startY||0)) > Math.abs(e.touches[0].clientX - (el._startX||0))) {
+          const t = e.touches[0];
+          if (el._startY !== undefined && Math.abs(t.clientY - el._startY) > Math.abs(t.clientX - el._startX)) {
             e.preventDefault();
           }
         } else {
@@ -215,17 +232,11 @@
       idx = (n + slides.length) % slides.length;
       slides[idx].classList.add('active');
     }
+    const nextSlide = () => showSlide(idx + 1);
+    const prevSlide = () => showSlide(idx - 1);
 
-    function nextSlide(){ showSlide(idx + 1); }
-    function prevSlide(){ showSlide(idx - 1); }
-
-    function startAuto(){
-      stopAuto();
-      autoTimer = setInterval(nextSlide, 5000); // 5s cycle
-    }
-    function stopAuto(){
-      if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
-    }
+    function startAuto(){ stopAuto(); autoTimer = setInterval(nextSlide, 5000); }
+    function stopAuto(){ if (autoTimer) { clearInterval(autoTimer); autoTimer = null; } }
     startAuto();
 
     // Swipe handling
@@ -234,13 +245,11 @@
       carousel.addEventListener('touchstart', (e)=>{
         const t=e.touches[0];
         startX=t.clientX; startY=t.clientY;
-        carousel._startX = startX; carousel._startY = startY; // used in move lock
+        carousel._startX = startX; carousel._startY = startY; // used by the move lock above
         dragging=true; stopAuto();
       }, {passive:true});
 
-      carousel.addEventListener('touchend', (e)=>{
-        dragging=false; startAuto();
-      });
+      carousel.addEventListener('touchend', ()=>{ dragging=false; startAuto(); });
 
       carousel.addEventListener('touchmove', (e)=>{
         if(!dragging) return;
@@ -253,7 +262,7 @@
         }
       }, {passive:false});
 
-      // Optional mouse swipe (desktop)
+      // Mouse swipe (desktop)
       let mdown=false, mx=0;
       carousel.addEventListener('mousedown', (e)=>{ mdown=true; mx=e.clientX; stopAuto(); });
       document.addEventListener('mouseup', ()=>{ if(mdown){ mdown=false; startAuto(); }});
@@ -268,23 +277,19 @@
        3) Since timer (Aug 13, 2025 07:45)
        ========================= */
     const sinceEl = document.getElementById('sinceTimer');
-    const origin = new Date(Date.UTC(2025, 7, 13, 7, 45, 0)); // months 0-indexed; 7 = August
+    const origin = new Date(Date.UTC(2025, 7, 13, 7, 45, 0)); // (YYYY, MM-1, DD, HH, MM, SS) in UTC
     function updateSince(){
       const now = new Date();
       let diff = Math.max(0, now - origin);
-
       const sec = 1000, min = 60*sec, hr = 60*min, day = 24*hr, wk = 7*day;
-      const years = Math.floor(diff / (365.2425*day)); // astronomical year
-      diff -= years * 365.2425*day;
-      const months = Math.floor(diff / (30.436875*day)); // avg month
-      diff -= months * 30.436875*day;
-      const weeks = Math.floor(diff / wk); diff -= weeks * wk;
-      const days  = Math.floor(diff / day); diff -= days * day;
-      const hours = Math.floor(diff / hr);  diff -= hours * hr;
-      const mins  = Math.floor(diff / min); diff -= mins * min;
+      const years = Math.floor(diff / (365.2425*day)); diff -= years*365.2425*day;
+      const months = Math.floor(diff / (30.436875*day)); diff -= months*30.436875*day;
+      const weeks = Math.floor(diff / wk); diff -= weeks*wk;
+      const days  = Math.floor(diff / day); diff -= days*day;
+      const hours = Math.floor(diff / hr);  diff -= hours*hr;
+      const mins  = Math.floor(diff / min); diff -= mins*min;
       const secs  = Math.floor(diff / sec);
 
-      // Show larger units only when non-zero (your requirement)
       const parts = [];
       if (years)  parts.push(`${years}y`);
       if (months) parts.push(`${months}mo`);
@@ -297,15 +302,13 @@
     setInterval(updateSince, 1000);
 
     /* =========================
-       4) Realtime prayers (safe; new only)
+       4) Realtime prayers (only NEW after load)
        ========================= */
     const sendBtn = document.getElementById('sendBtn');
     const input   = document.getElementById('prayerMessage');
+    const EMOTES  = ['🙏','🕊️','🕯️','💖','💐','🪽','💞','🌟','🤍'];
 
-    const EMOTES = ['🙏','🕊️','🕯️','💖','💐','🪽','🕊️','💞','🌟','🤍'];
-
-    // Only display NEW entries after page load
-    const loadCutoff = Date.now() + 500; // slight buffer
+    const loadCutoff = Date.now() + 500; // show only posts created after load
     const prayersRef = db.ref('prayers');
 
     prayersRef.orderByChild('timestamp').startAt(loadCutoff).on('child_added', snap => {
@@ -313,41 +316,35 @@
       showPrayerOnOverlay(p.icon, p.text || '');
     });
 
-    // Send prayer (if empty -> random emote). We render ONLY after Firebase echoes back via listener above.
     function sendPrayer() {
       const message = (input.value || '').trim();
       const icon = message ? '🙏' : EMOTES[Math.floor(Math.random()*EMOTES.length)];
       prayersRef.push({
-        text: message,                   // may be empty
+        text: message,                      // can be empty
         icon,
         timestamp: firebase.database.ServerValue.TIMESTAMP
       });
       input.value = '';
     }
     sendBtn.addEventListener('click', sendPrayer);
-    // Enter key
     input.addEventListener('keydown', (e)=>{ if(e.key === 'Enter'){ e.preventDefault(); sendPrayer(); } });
 
-    /* Where emotes/messages appear: inside the overlay, over the active slide */
+    // Render emotes/messages inside the overlay over the active slide
     function showPrayerOnOverlay(icon, text){
       const activeSlide = slides[idx];
       const rect = activeSlide.getBoundingClientRect();
-
       const el = document.createElement('div');
       el.className = 'prayer';
       el.innerHTML = icon + (text ? ' ' + text : '');
 
-      // Random horizontal position inside the slide (with 12px padding)
       const xPad = 12;
       const randX = Math.random() * (rect.width - 120) + xPad;
-      // Start near the lower third of the image, but inside bounds
-      const startY = rect.height * 0.75;
+      const startY = rect.height * 0.75; // lower third of image
 
       el.style.left = randX + 'px';
       el.style.top  = startY + 'px';
 
-      overlay.appendChild(el);
-      // Remove after animation
+      document.getElementById('overlay').appendChild(el);
       setTimeout(()=> el.remove(), 5200);
     }
   </script>
